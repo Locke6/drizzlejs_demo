@@ -1,0 +1,29 @@
+{{#module}}
+<div class="proto">
+  <div data-region="main"></div>
+</div>
+{{/module}}
+{{#view "main"}}
+<div class="box">
+  <h1 class="title">myProto</h1>
+  <form><input type="checkbox" id="sexcheck" {{#if showMan}}checked='checked' {{/if}}>男</input></form>
+  <ul class="name-list">
+    <li class="name-title"><span>姓名</span></li>
+    <li class="age-title"><span>年龄</span></li>
+    <li class="sex-title"><span>性别</span></li>
+  </ul>
+  <ul class="proto-list">
+    {{#each listData}}
+    <li class="list-item">
+      <div class="name">
+        {{#if flag}}<span id="edit-{{id}}" data-name="id" data-value="{{id}}">{{name}}</span>
+        {{else}}<input type="text" value={{name}} id="input-{{id}}">{{/if}}
+      </div>
+      <div class="age">{{age}}</div>
+      <div class="sex">{{sex}}<button class="del" id="destroy-{{id}}" data-name="id" data-value="{{id}}">删除</button>
+      </div>
+    </li>
+    {{/each}}
+  </ul>
+</div>
+{{/view}}
