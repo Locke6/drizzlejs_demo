@@ -15,23 +15,51 @@ exports.store = {
       else
         this.models.filter.set("男", true);//只显示男老师的课程
     },
-    // 删除项
+    // 删除单项
     removeTodo: function (payload) {
       var protoList = this.models.protoList;
       protoList.set(_.reject(protoList.data, { id: payload.id }), true);
     },
     //切换修改
-    toEdit: function (payload) { 
+    toEdit: function (payload) {
       var protoList = this.models.protoList;
       _.find(protoList.data, { id: payload.id }).flag = payload.flag;
+      if(payload.flag){
+        _.find(protoList.data, { id: payload.id }).name = payload.name;
+      }
       protoList.changed()
-    }
-    // 切换显示/修改
-    // update2show: function (payload) {
-    //   if (this.models.showOrUpdate.data === "show")
-    //     this.models.showOrUpdate.set('update', true);//显示input
-    //   else
-    //     this.models.showOrUpdate.set("show", true);//显示span
-    // },
+    },
+    // 勾选单个
+    completeTodo: function(payload) {
+      var protoList = this.models.protoList;
+      _.find(protoList.data, { id: payload.id }).checked = payload.checked;
+      protoList.changed();
+    },
+    // 勾选全部
+    completeAllTodo: function(payload) {
+      var protoList = this.models.protoList;
+      _.map(protoList.data, function(item) {
+          item.checked = payload.checked;
+      });
+      protoList.changed();
+    },
+    // 删除已勾选
+    removeChecked: function(payload) {
+      var protoList = this.models.protoList;
+      protoList.set(_.reject(protoList.data, { checked: true }), true);
+    },
+    // 搜索
+    searchTodo: function(payload) {
+      var protoList = this.models.protoList;
+      var target=_.filter(protoList.data, function(item){
+        return item.name.includes(payload.name)
+      })
+      // console.log(target)
+      if(!target.length){
+        alert("未找到"+payload.name)
+        return 
+      }
+      protoList.set(target, true);
+    },
   }
 }

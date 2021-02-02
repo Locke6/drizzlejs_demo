@@ -3,12 +3,17 @@ ul{
     margin: 0;
     padding: 0;
 }
+input{
+    outline: none;
+    border: 0;
+}
 .box{
     margin: 100px auto 0;
     width: 700px;
 }
-#sexcheck{
-    margin-left: 10px;
+.male{
+    margin: 10px;
+    margin-left: 400px;
 }
 .title{
     color: #456c81;
@@ -39,6 +44,7 @@ ul{
 }
 .list-item{
     border-bottom: 1px solid rgb(201, 207, 216);
+    height: 45px;
 }
 .list-item:hover{
     background-color:rgb(230, 232, 236);
@@ -49,17 +55,40 @@ ul{
 .sex{
     position: relative;
 }
-.del{
+.del,.del-all{
     border-radius: 5px;
     outline: none;
     border: 0;
-    display: none;
-    position: absolute;
     right: 10px;
     background-color: rgb(145, 190, 255);
     color: #fff;
 }
+.del{
+    position: absolute;
+    display: none;
+}
 .del:hover{
     background-color: rgba(145, 190, 255,0.8);
 }
-
+.edit-todo{
+    border: 1px solid #dddcdc;
+}
+.operate{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 10px;
+}
+.del-all{
+    margin: 0 10px;
+}
+.proto-header{
+    display: flex;
+    align-items: center;
+}
+.new-task{
+    height: 30px;
+}
+.new-task::placeholder{
+    font-style: italic;
+}

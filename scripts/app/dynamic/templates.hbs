@@ -1,10 +1,14 @@
 {{#module}}
-    <div class="">
+    <div class="dynamic">
+        <div data-region="header"></div>
         <div data-region="main"></div>
     </div>
 {{/module}}
+{{#view "header"}}
+    <h1 class="header-dynamic">声明式渲染视频模块</h1>
+{{/view}}
 {{#view "main"}}
-	<div>
-	    <div data-dynamic-key='v123'></div>
-	</div>
+    <div>
+        <div data-dynamic-key="haha"></div>
+    </div>
 {{/view}}

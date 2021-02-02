@@ -340,45 +340,58 @@ exports.store = {
       else
         this.models.filter.set("男", true);//只显示男老师的课程
     },
-    // 删除项
+    // 删除单项
     removeTodo: function (payload) {
       var protoList = this.models.protoList;
       protoList.set(_.reject(protoList.data, { id: payload.id }), true);
     },
     //切换修改
-    toEdit: function (payload) { 
+    toEdit: function (payload) {
       var protoList = this.models.protoList;
       _.find(protoList.data, { id: payload.id }).flag = payload.flag;
+      if(payload.flag){
+        _.find(protoList.data, { id: payload.id }).name = payload.name;
+      }
       protoList.changed()
-    }
-    // 切换显示/修改
-    // update2show: function (payload) {
-    //   if (this.models.showOrUpdate.data === "show")
-    //     this.models.showOrUpdate.set('update', true);//显示input
-    //   else
-    //     this.models.showOrUpdate.set("show", true);//显示span
-    // },
+    },
+    // 勾选单个
+    completeTodo: function(payload) {
+      var protoList = this.models.protoList;
+      _.find(protoList.data, { id: payload.id }).checked = payload.checked;
+      protoList.changed();
+    },
+    // 勾选全部
+    completeAllTodo: function(payload) {
+      var protoList = this.models.protoList;
+      _.map(protoList.data, function(item) {
+          item.checked = payload.checked;
+      });
+      protoList.changed();
+    },
+    // 删除已勾选
+    removeChecked: function(payload) {
+      var protoList = this.models.protoList;
+      protoList.set(_.reject(protoList.data, { checked: true }), true);
+    },
+    // 搜索
+    searchTodo: function(payload) {
+      var protoList = this.models.protoList;
+      var target=_.filter(protoList.data, function(item){
+        return item.name.includes(payload.name)
+      })
+      // console.log(target)
+      if(!target.length){
+        alert("未找到"+payload.name)
+        return 
+      }
+      protoList.set(target, true);
+    },
   }
 }
 },{"lodash/collection":"lodash/collection"}],"./app/proto/templates":[function(require,module,exports){
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
     return "<div class=\"proto\">\r\n  <div data-region=\"main\"></div>\r\n</div>\r\n";
 },"3":function(container,depth0,helpers,partials,data) {
-    var stack1, alias1=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
-    };
-
-  return "<div class=\"box\">\r\n  <h1 class=\"title\">myProto</h1>\r\n  <form><input type=\"checkbox\" id=\"sexcheck\" "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"showMan") : depth0),{"name":"if","hash":{},"fn":container.program(4, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":9,"column":45},"end":{"line":9,"column":85}}})) != null ? stack1 : "")
-    + ">男</input></form>\r\n  <ul class=\"name-list\">\r\n    <li class=\"name-title\"><span>姓名</span></li>\r\n    <li class=\"age-title\"><span>年龄</span></li>\r\n    <li class=\"sex-title\"><span>性别</span></li>\r\n  </ul>\r\n  <ul class=\"proto-list\">\r\n"
-    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"listData") : depth0),{"name":"each","hash":{},"fn":container.program(6, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":16,"column":4},"end":{"line":26,"column":13}}})) != null ? stack1 : "")
-    + "  </ul>\r\n</div>\r\n";
-},"4":function(container,depth0,helpers,partials,data) {
-    return "checked='checked' ";
-},"6":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -386,18 +399,49 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
         return undefined
     };
 
-  return "    <li class=\"list-item\">\r\n      <div class=\"name\">\r\n        "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"flag") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.program(9, data, 0),"data":data,"loc":{"start":{"line":19,"column":8},"end":{"line":20,"column":75}}})) != null ? stack1 : "")
+  return "<div class=\"box\">\r\n  <h1 class=\"title\">myProto</h1>\r\n  <div class=\"proto-header\">\r\n    <div class=\"proto-search\">\r\n      <input type=\"text\" id=\"new-task\" class=\"new-task\" placeholder=\"姓名\" autocomplete=\"off\" data-name=\"input\">\r\n      <button id=\"click2new\" data-name=\"button\">查询</button>\r\n    </div>\r\n    <form class=\"male\"><input type=\"checkbox\" id=\"sexcheck\" "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"showMan") : depth0),{"name":"if","hash":{},"fn":container.program(4, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":14,"column":60},"end":{"line":14,"column":100}}})) != null ? stack1 : "")
+    + "> 男</input></form>\r\n  </div>\r\n  <ul class=\"name-list\">\r\n    <li class=\"name-title\"><input type=\"checkbox\" id=\"toggleAll\" "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"completed") : depth0),{"name":"if","hash":{},"fn":container.program(6, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":17,"column":65},"end":{"line":17,"column":97}}})) != null ? stack1 : "")
+    + "><span> 姓名</span></li>\r\n    <li class=\"age-title\"><span>年龄</span></li>\r\n    <li class=\"sex-title\"><span>性别</span></li>\r\n  </ul>\r\n  <ul class=\"proto-list\">\r\n"
+    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"listData") : depth0),{"name":"each","hash":{},"fn":container.program(8, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":22,"column":4},"end":{"line":35,"column":13}}})) != null ? stack1 : "")
+    + "  </ul>\r\n  <div class=\"operate\">\r\n    <div class=\"status\">\r\n      已完成：<span>"
+    + alias4(((helper = (helper = lookupProperty(helpers,"completedNum") || (depth0 != null ? lookupProperty(depth0,"completedNum") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"completedNum","hash":{},"data":data,"loc":{"start":{"line":39,"column":16},"end":{"line":39,"column":32}}}) : helper)))
+    + "</span>/<span>"
+    + alias4(((helper = (helper = lookupProperty(helpers,"totalNum") || (depth0 != null ? lookupProperty(depth0,"totalNum") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"totalNum","hash":{},"data":data,"loc":{"start":{"line":39,"column":46},"end":{"line":39,"column":58}}}) : helper)))
+    + "</span>\r\n    </div>\r\n    <button class=\"del-all\" id=\"delAll\">批量删除</button>\r\n  </div>\r\n</div>\r\n";
+},"4":function(container,depth0,helpers,partials,data) {
+    return "checked='checked' ";
+},"6":function(container,depth0,helpers,partials,data) {
+    return " checked";
+},"8":function(container,depth0,helpers,partials,data) {
+    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "    <li class=\"list-item\">\r\n      <div class=\"name\">\r\n        <input type=\"checkbox\" class=\"toggle\" "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"checked") : depth0),{"name":"if","hash":{},"fn":container.program(9, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":25,"column":46},"end":{"line":25,"column":76}}})) != null ? stack1 : "")
+    + " type=\"checkbox\" id=\"toggle-"
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":25,"column":104},"end":{"line":25,"column":110}}}) : helper)))
+    + "\"\r\n          data-name=\"id\" data-value=\""
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":26,"column":37},"end":{"line":26,"column":43}}}) : helper)))
+    + "\">\r\n        "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"flag") : depth0),{"name":"if","hash":{},"fn":container.program(11, data, 0),"inverse":container.program(13, data, 0),"data":data,"loc":{"start":{"line":27,"column":8},"end":{"line":29,"column":37}}})) != null ? stack1 : "")
     + "\r\n      </div>\r\n      <div class=\"age\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"age") || (depth0 != null ? lookupProperty(depth0,"age") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"age","hash":{},"data":data,"loc":{"start":{"line":22,"column":23},"end":{"line":22,"column":30}}}) : helper)))
+    + alias4(((helper = (helper = lookupProperty(helpers,"age") || (depth0 != null ? lookupProperty(depth0,"age") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"age","hash":{},"data":data,"loc":{"start":{"line":31,"column":23},"end":{"line":31,"column":30}}}) : helper)))
     + "</div>\r\n      <div class=\"sex\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"sex") || (depth0 != null ? lookupProperty(depth0,"sex") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"sex","hash":{},"data":data,"loc":{"start":{"line":23,"column":23},"end":{"line":23,"column":30}}}) : helper)))
+    + alias4(((helper = (helper = lookupProperty(helpers,"sex") || (depth0 != null ? lookupProperty(depth0,"sex") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"sex","hash":{},"data":data,"loc":{"start":{"line":32,"column":23},"end":{"line":32,"column":30}}}) : helper)))
     + "<button class=\"del\" id=\"destroy-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":23,"column":62},"end":{"line":23,"column":68}}}) : helper)))
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":32,"column":62},"end":{"line":32,"column":68}}}) : helper)))
     + "\" data-name=\"id\" data-value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":23,"column":97},"end":{"line":23,"column":103}}}) : helper)))
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":32,"column":97},"end":{"line":32,"column":103}}}) : helper)))
     + "\">删除</button>\r\n      </div>\r\n    </li>\r\n";
-},"7":function(container,depth0,helpers,partials,data) {
+},"9":function(container,depth0,helpers,partials,data) {
+    return "checked ";
+},"11":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -406,13 +450,13 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
     };
 
   return "<span id=\"edit-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":19,"column":35},"end":{"line":19,"column":41}}}) : helper)))
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":27,"column":35},"end":{"line":27,"column":41}}}) : helper)))
     + "\" data-name=\"id\" data-value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":19,"column":70},"end":{"line":19,"column":76}}}) : helper)))
-    + "\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":19,"column":78},"end":{"line":19,"column":86}}}) : helper)))
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":27,"column":70},"end":{"line":27,"column":76}}}) : helper)))
+    + "\" data-type=\"span\">"
+    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":27,"column":95},"end":{"line":27,"column":103}}}) : helper)))
     + "</span>\r\n        ";
-},"9":function(container,depth0,helpers,partials,data) {
+},"13":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -420,10 +464,12 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
         return undefined
     };
 
-  return "<input type=\"text\" value="
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":20,"column":41},"end":{"line":20,"column":49}}}) : helper)))
-    + " id=\"input-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":20,"column":60},"end":{"line":20,"column":66}}}) : helper)))
+  return "<input class=\"edit-todo\" type=\"text\" value=\""
+    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":28,"column":60},"end":{"line":28,"column":68}}}) : helper)))
+    + "\" id=\"input-"
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":28,"column":80},"end":{"line":28,"column":86}}}) : helper)))
+    + "\" data-name=\"id\"\r\n          data-value=\""
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":29,"column":22},"end":{"line":29,"column":28}}}) : helper)))
     + "\">";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, options, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, lookupProperty = container.lookupProperty || function(parent, propertyName) {
@@ -436,7 +482,7 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
   stack1 = ((helper = (helper = lookupProperty(helpers,"module") || (depth0 != null ? lookupProperty(depth0,"module") : depth0)) != null ? helper : alias2),(options={"name":"module","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":1,"column":0},"end":{"line":5,"column":11}}}),(typeof helper === "function" ? helper.call(alias1,options) : helper));
   if (!lookupProperty(helpers,"module")) { stack1 = container.hooks.blockHelperMissing.call(depth0,stack1,options)}
   if (stack1 != null) { buffer += stack1; }
-  return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":0},"end":{"line":29,"column":9}}})) != null ? stack1 : "");
+  return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":0},"end":{"line":44,"column":9}}})) != null ? stack1 : "");
 },"useData":true});
 },{"handlebars/runtime":"handlebars/runtime"}],"./app/proto/view-main":[function(require,module,exports){
 var _ = require('lodash/collection');//加载用到的工具模块
@@ -445,13 +491,16 @@ exports.bindings = {
   filter: true
 };
 exports.events = {
-  'click edit-*': 'showEdit'
+  'dblclick edit-*': 'showEdit',
 };
 exports.handlers = {
   showEdit: function (id) {
-    this.$('input-' + id).focus();
+    var me = this
+    showInput = setTimeout(function () {
+      me.$('input-' + id).focus();
+    }, 50)
   }
-}
+};
 exports.dataForTemplate = {
   listData: function (data) {
     if (data.filter === 'all') {
@@ -462,20 +511,68 @@ exports.dataForTemplate = {
   showMan: function (data) {
     return data.filter === "男"
   },
-  // showUpdate: function (data) { 
-  //   return data.
-  // }
+  completed: function (data) {
+    if (!data.protoList.length) {
+      return false
+    }
+    return _.every(data.protoList, ['checked', true]);
+  },
+  completedNum: function (data) {
+    return _.filter(data.protoList, { checked: true }).length
+  },
+  totalNum: function (data) {
+    return data.protoList.length
+  },
 };
 exports.actions = {
   'change sexcheck': 'filterSex',
   'click  destroy-*': 'removeTodo',
-  'click  edit-*': 'toEdit'
+  'dblclick  edit-*': 'toEdit',
+  'blur  input-*': 'toEdit',
+  'change toggle-*': 'completeTodo',
+  'change toggleAll': 'completeAllTodo',
+  'click delAll': 'removeChecked',
+  'keypress new-task': 'searchTodo',
+  'click click2new': 'searchTodo',
+
 };
 exports.dataForActions = {
-  toEdit: function (data) {
-    data.flag = false
+  toEdit: function (data, e) {
+    if (e.target.dataset.type === "span") {
+      data.flag = false
+    } else {
+      data.flag = true
+      data.name = e.target.value
+    }
     return data
-  }
+  },
+  completeTodo: function (data, e) {
+    data.checked = e.target.checked;
+    return data;
+  },
+  completeAllTodo: function (data, e) {
+    data.checked = e.target.checked;
+    return data;
+  },
+  searchTodo: function (data, e) {
+    var name
+    if (e.target.dataset.name === "button") {
+      name = this.$('new-task').value
+    } else {
+      if (e.keyCode !== 13) {
+        return false;
+      }
+      e.preventDefault();
+      name = e.target.value;
+    }
+    if (!name) {
+      alert('内容不能为空')
+      return
+    }
+    data.name = name;
+    this.$('new-task').value = '';
+    return data;
+  },
 }
 
 },{"lodash/collection":"lodash/collection"}],"./app/request/index":[function(require,module,exports){

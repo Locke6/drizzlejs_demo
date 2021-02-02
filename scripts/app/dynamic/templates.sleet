@@ -1,0 +1,11 @@
+#!handlebars
+module
+    .dynamic
+        div(data-region='header')
+        div(data-region='main')
+
+view('header')
+    h1.header-dynamic 声明式渲染视频模块
+view('main')
+    div
+        div(data-dynamic-key='haha')
