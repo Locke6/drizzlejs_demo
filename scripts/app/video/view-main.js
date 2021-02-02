@@ -6,7 +6,6 @@ exports.components = [function() {
         options: {
             video: {
                 autoplay: true,
-                
             },
         }
     };
@@ -29,3 +28,6 @@ exports.beforeClose = function(){
 };
 exports.afterClose = function(){
 };
+exports.beforeRender=function(){
+    console.log(this,this.app)
+}

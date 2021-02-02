@@ -5,12 +5,13 @@
 }
 
 body {
-    background-color: #f5f5f5;
+    background-color: #fff;
 }
 
 a {
     text-decoration: none;
-    color: rgb(61, 146, 201);
+    color: #fff;
+    background-color:rgb(162, 198, 251);
 }
 a:hover,
 a:focus {
@@ -22,6 +23,12 @@ h3 {
 }
 
 /* LAYOUT CSS */
+#content{
+    margin: 50px auto;
+    width: 1200px;
+    padding-bottom: 100px;
+    background-color: #f5f5f5;
+}
 .pure-img-responsive {
     max-width: 100%;
     height: auto;
@@ -30,18 +37,21 @@ h3 {
 .header {
     text-align: center;
     top: auto;
-    margin: 3em auto;
 }
 
 .sidebar {
-    background: rgb(145, 190, 255);
     color: #fff;
     width: 308px;
+    padding: 50px 0;
+    /* background: #a2c6fb; */
+    border-bottom: 5px solid #a2c6fb;
 }
 
 .brand-title {
-    margin: 0;
-    width: 100%;
+    margin: 26.8px 0;
+    text-align: left;
+    color: #456c81;
+    font-size: 40px;
 }
 .brand-title {
     text-transform: uppercase;
@@ -51,25 +61,28 @@ h3 {
     margin: 0;
     padding: 0;
     list-style: none;
+    display: flex;
 }
 .nav-item {
-    display: inline-block;
-    *display: inline;
+    flex-grow: 1;
     zoom: 1;
+    text-align: center;
 }
 .nav-item a {
     background: transparent;
     border: 2px solid rgb(217, 228, 235);
-    color: #fff;
+    color: #456c81;
     margin-top: 1em;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    font-size: 85%;
-    width: 100%
+    font-size: 25px;
+    width: 80%;
 }
 .nav-item a:hover,
 .nav-item a:focus {
-    border: 2px solid rgb(61, 146, 201);
+    border: 2px solid rgb(162, 198, 251);
+    background-color: rgb(162, 198, 251);
+    color: #fff;
     text-decoration: none;
 }
 
@@ -81,9 +94,6 @@ h3 {
     font-size: 80%;
     font-weight: 500;
     letter-spacing: 0.1em;
-}
-
-.content {
 }
 
 .post {
@@ -154,19 +164,15 @@ h3 {
 }
 
 @media (min-width: 48em) {
-    .content {
-        margin-left: 25%;
+    .content{
+        margin: 0 auto;
     }
-
     .header {
-        margin: 10% 2em 0;
         text-align: right;
     }
 
     .sidebar {
-        position: fixed;
-        top: 0;
-        bottom: 0;
+        width: 100%;
     }
 
     .nav-item {
@@ -174,15 +180,13 @@ h3 {
     }
 }
 /*---------listbox-------*/
-.list-box{
-    margin: 130px;
-}
+
 .spleft{
     margin-left: 100px;
 }
 .mbox h1{
     color: #456c81;
-    display: inline-block;
+    margin: 26.8px 0;
 }
 .mbox form{
     display: inline-block;
@@ -217,4 +221,14 @@ h3 {
 }
 .mlist li{
 	text-align: left;
+}
+.header-dynamic{
+    color: #456c81;
+    font-size: 40px;
+}
+.demo-title{
+    color: #456c81;
+    text-align: left;
+    font-size: 45px;
+    margin-left: 30px;
 }

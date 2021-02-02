@@ -1,0 +1,44 @@
+#!handlebars
+module
+    .proto
+        div(data-region="main")
+        div(data-region="footer")
+view('main')
+    .box
+        h1.title#title 个人信息
+        .proto-header
+            .proto-search
+                input#new-task.new-task(type="text" placeholder="姓名" autocomplete="off" data-name="input")
+                button#click2new(data-name="button") 查询
+                button#reset 重置
+                button#add 添加
+            form.male
+                input#sexcheck(checked='checked')&if(showMan)(type="checkbox")
+                span 男
+        ul.name-list
+            li.name-title
+                input#toggleAll(type="checkbox")(checked='checked')&if(completed)
+                span 姓名
+            li.age-title
+                span 年龄
+            li.sex-title
+                span 性别
+        ul.proto-list
+            each(listData)
+                li.list-item
+                    .name
+                        input.toggle(type="checkbox" id='toggle-' + id data-name="id" data-value=id)(checked='checked')&if(checked)
+                        if(flag)
+                            span(id="edit-" + id data-name="id" data-value=id data-type="span") > echo(name)
+                        else
+                            input.edit-todo(type="text" value=name id="input-" + id data-name="id" data-value=id)
+                    .age > echo(age)
+                    .sex > echo(sex) + button.del(id="destroy-" + id data-name="id" data-value=id) 删除
+    .operate
+        .status 已完成：
+            span > echo(completedNum '/')
+            span > echo(totalNum)
+        button.del-all#delAll 批量删除
+    #pop-box
+view('footer')
+    #pagerbox.pagerbox.pagination

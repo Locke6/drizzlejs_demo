@@ -7,13 +7,12 @@ input{
     outline: none;
     border: 0;
 }
-.box{
-    margin: 100px auto 0;
+.proto{
     width: 700px;
 }
 .male{
     margin: 10px;
-    margin-left: 400px;
+    margin-left: 300px;
 }
 .title{
     color: #456c81;

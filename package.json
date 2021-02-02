@@ -29,11 +29,13 @@
     "json-server": "^0.8.6",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.7.0"
+    "watchify": "^3.7.0",
+    "pdfjs-dist": "~1.10.100"
   },
   "dependencies": {
     "drizzlejs": "^0.4.0",
     "handlebars": "^4.0.5",
+    "jquery": "^3.5.1",
     "lodash": "^4.0.0",
     "purecss": "^0.6.0",
     "qrcodejs2": "^0.0.2",

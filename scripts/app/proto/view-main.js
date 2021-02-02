@@ -1,7 +1,9 @@
 var _ = require('lodash/collection');//加载用到的工具模块
 exports.bindings = {
   protoList: true,
-  filter: true
+  filter: true,
+  user: true,
+  totalList: true
 };
 exports.events = {
   'dblclick edit-*': 'showEdit',
@@ -35,19 +37,20 @@ exports.dataForTemplate = {
   },
   totalNum: function (data) {
     return data.protoList.length
-  },
+  }
 };
 exports.actions = {
   'change sexcheck': 'filterSex',
-  'click  destroy-*': 'removeTodo',
+  'click  destroy-*': 'removeUser',
   'dblclick  edit-*': 'toEdit',
   'blur  input-*': 'toEdit',
-  'change toggle-*': 'completeTodo',
-  'change toggleAll': 'completeAllTodo',
+  'change toggle-*': 'completeUser',
+  'change toggleAll': 'completeAllUser',
+  'keypress new-task': 'searchUser',
+  'click click2new': 'searchUser',
+  'click reset': 'resetUser',
+  'click add': 'addUser',
   'click delAll': 'removeChecked',
-  'keypress new-task': 'searchTodo',
-  'click click2new': 'searchTodo',
-
 };
 exports.dataForActions = {
   toEdit: function (data, e) {
@@ -59,15 +62,15 @@ exports.dataForActions = {
     }
     return data
   },
-  completeTodo: function (data, e) {
+  completeUser: function (data, e) {
     data.checked = e.target.checked;
     return data;
   },
-  completeAllTodo: function (data, e) {
+  completeAllUser: function (data, e) {
     data.checked = e.target.checked;
     return data;
   },
-  searchTodo: function (data, e) {
+  searchUser: function (data, e) {
     var name
     if (e.target.dataset.name === "button") {
       name = this.$('new-task').value
@@ -86,4 +89,11 @@ exports.dataForActions = {
     this.$('new-task').value = '';
     return data;
   },
-}
+};
+exports.components = [{
+  id: 'pop-box',  //templates.hbs里定义的元素
+  name: 'pop', //ext目录下的组件名
+  options: { model: 'user' }
+}]
+
+

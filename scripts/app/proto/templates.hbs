@@ -1,44 +1,62 @@
 {{#module}}
-<div class="proto">
-  <div data-region="main"></div>
-</div>
+    <div class="proto">
+        <div data-region="main"></div>
+        <div data-region="footer"></div>
+    </div>
 {{/module}}
 {{#view "main"}}
-<div class="box">
-  <h1 class="title">myProto</h1>
-  <div class="proto-header">
-    <div class="proto-search">
-      <input type="text" id="new-task" class="new-task" placeholder="姓名" autocomplete="off" data-name="input">
-      <button id="click2new" data-name="button">查询</button>
+    <div class="box">
+        <h1 id="title" class="title">个人信息</h1>
+        <div class="proto-header">
+            <div class="proto-search">
+                <input id="new-task" class="new-task" type="text" placeholder="姓名" autocomplete="off" data-name="input"/>
+                <button id="click2new" data-name="button">查询</button>
+                <button id="reset">重置</button>
+                <button id="add">添加</button>
+            </div>
+            <form class="male">
+                <input id="sexcheck" {{#if showMan}} checked{{/if}} type="checkbox"/>
+                <span>男</span>
+            </form>
+        </div>
+        <ul class="name-list">
+            <li class="name-title">
+                <input id="toggleAll" {{#if completed}} checked{{/if}} type="checkbox"/>
+                <span>姓名</span>
+            </li>
+            <li class="age-title">
+                <span>年龄</span>
+            </li>
+            <li class="sex-title">
+                <span>性别</span>
+            </li>
+        </ul>
+        <ul class="proto-list">
+            {{#each listData}}
+                <li class="list-item">
+                    <div class="name">
+                        <input class="toggle" {{#if checked}} checked{{/if}} type="checkbox" id="toggle-{{id}}" data-name="id" data-value="{{id}}"/>
+                        {{#if flag}}
+                            <span id="edit-{{id}}" data-name="id" data-value="{{id}}" data-type="span">{{name}}</span>
+                        {{else}}
+                            <input class="edit-todo" type="text" value="{{name}}" id="input-{{id}}" data-name="id" data-value="{{id}}"/>
+                        {{/if}}
+                    </div>
+                    <div class="age">{{age}}</div>
+                    <div class="sex">{{sex}}<button class="del" id="destroy-{{id}}" data-name="id" data-value="{{id}}">删除</button></div>
+                </li>
+            {{/each}}
+        </ul>
     </div>
-    <form class="male"><input type="checkbox" id="sexcheck" {{#if showMan}}checked='checked' {{/if}}> 男</input></form>
-  </div>
-  <ul class="name-list">
-    <li class="name-title"><input type="checkbox" id="toggleAll" {{#if completed}} checked{{/if}}><span> 姓名</span></li>
-    <li class="age-title"><span>年龄</span></li>
-    <li class="sex-title"><span>性别</span></li>
-  </ul>
-  <ul class="proto-list">
-    {{#each listData}}
-    <li class="list-item">
-      <div class="name">
-        <input type="checkbox" class="toggle" {{#if checked}}checked {{/if}} type="checkbox" id="toggle-{{id}}"
-          data-name="id" data-value="{{id}}">
-        {{#if flag}}<span id="edit-{{id}}" data-name="id" data-value="{{id}}" data-type="span">{{name}}</span>
-        {{else}}<input class="edit-todo" type="text" value="{{name}}" id="input-{{id}}" data-name="id"
-          data-value="{{id}}">{{/if}}
-      </div>
-      <div class="age">{{age}}</div>
-      <div class="sex">{{sex}}<button class="del" id="destroy-{{id}}" data-name="id" data-value="{{id}}">删除</button>
-      </div>
-    </li>
-    {{/each}}
-  </ul>
-  <div class="operate">
-    <div class="status">
-      已完成：<span>{{completedNum}}</span>/<span>{{totalNum}}</span>
+    <div class="operate">
+        <div class="status">已完成：
+            <span>{{completedNum}}/</span>
+            <span>{{totalNum}}</span>
+        </div>
+        <button id="delAll" class="del-all">批量删除</button>
     </div>
-    <button class="del-all" id="delAll">批量删除</button>
-  </div>
-</div>
+    <div id="pop-box"></div>
+{{/view}}
+{{#view "footer"}}
+    <div id="pagerbox" class="pagerbox pagination"></div>
 {{/view}}

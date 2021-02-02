@@ -1,0 +1,15 @@
+#!handlebars
+module
+    .header(data-region="main")
+view('main')
+    h1.demo-title Drizzle Demo展示
+    nav.nav
+        ul.nav-list
+            li.nav-item
+                a.pure-button(href="#/proto") 列表CRUD
+            li.nav-item
+                a.pure-button(href="#/show") 引入第三方组件
+            li.nav-item
+                a.pure-button(href="#/dynamic") 声明式渲染
+            li.nav-item
+                a.pure-button(href="#/video") video页面

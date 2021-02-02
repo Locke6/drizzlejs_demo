@@ -1,11 +1,13 @@
 {{#module}}
-   <div class="header" data-region="main">
-    
-   </div>
+    <div class="video">
+        <div data-region="main"></div>
+    </div>
+
 {{/module}}
 {{#view 'main'}}
-    <h1 class="brand-title" style="text-align:center">视频模块</h1>
+    <h1 class="brand-title" >视频模块</h1>
     <video id="player" class="fullScreen-content video-js vjs-default-skin vjs-big-play-centered vjs-skin-hotdog-stand ttop" preload="auto">
         <source src="http://vjs.zencdn.net/v/oceans.mp4" type="video/mp4"/>
     </video>
+    <div>111{{url}}</div>
 {{/view}}

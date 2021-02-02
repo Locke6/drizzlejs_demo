@@ -1,5 +1,6 @@
 require=(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({"./app/dynamic/index":[function(require,module,exports){
 exports.items = {
+    header: 'header',
     main: 'main'
 };
 
@@ -7,9 +8,11 @@ exports.items = {
 
 },{}],"./app/dynamic/templates":[function(require,module,exports){
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
-    return "    <div class=\"\">\r\n        <div data-region=\"main\"></div>\r\n    </div>\r\n";
+    return "    <div class=\"dynamic\">\n        <div data-region=\"header\"></div>\n        <div data-region=\"main\"></div>\n    </div>\n";
 },"3":function(container,depth0,helpers,partials,data) {
-    return "	<div>\r\n	    <div data-dynamic-key='v123'></div>\r\n	</div>\r\n";
+    return "    <h1 class=\"header-dynamic\">声明式渲染视频模块</h1>\n";
+},"5":function(container,depth0,helpers,partials,data) {
+    return "    <div>\n        <div data-dynamic-key=\"haha\"></div>\n    </div>\n";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, options, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -18,31 +21,348 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
         return undefined
     }, buffer = "";
 
-  stack1 = ((helper = (helper = lookupProperty(helpers,"module") || (depth0 != null ? lookupProperty(depth0,"module") : depth0)) != null ? helper : alias2),(options={"name":"module","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":1,"column":0},"end":{"line":5,"column":11}}}),(typeof helper === "function" ? helper.call(alias1,options) : helper));
+  stack1 = ((helper = (helper = lookupProperty(helpers,"module") || (depth0 != null ? lookupProperty(depth0,"module") : depth0)) != null ? helper : alias2),(options={"name":"module","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":1,"column":0},"end":{"line":6,"column":11}}}),(typeof helper === "function" ? helper.call(alias1,options) : helper));
   if (!lookupProperty(helpers,"module")) { stack1 = container.hooks.blockHelperMissing.call(depth0,stack1,options)}
   if (stack1 != null) { buffer += stack1; }
-  return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":0},"end":{"line":10,"column":9}}})) != null ? stack1 : "");
+  return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"header",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":7,"column":0},"end":{"line":9,"column":9}}})) != null ? stack1 : "")
+    + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":10,"column":0},"end":{"line":14,"column":9}}})) != null ? stack1 : "");
 },"useData":true});
-},{"handlebars/runtime":"handlebars/runtime"}],"./app/dynamic/view-main":[function(require,module,exports){
+},{"handlebars/runtime":"handlebars/runtime"}],"./app/dynamic/view-header":[function(require,module,exports){
+
+},{}],"./app/dynamic/view-main":[function(require,module,exports){
 exports.type = 'dynamic';
 // 这个data获取的是getEntity返回的值，会作为renderOptions传入给要渲染的Module
-exports.dataForEntityModule = function(data) {
+exports.dataForEntityModule = function (data) {
+    // console.log(data)
     return data;
 };
 
-exports.getEntity = function(id) {
+exports.getEntity = function (id) {
     return {
         type: 'video',
         url: 'xx.mp4'
     };
 };
 
-exports.getEntityModuleName = function() {
-    return 'video';
+exports.getEntityModuleName = function (key) {
+    // key值为模版里标签的自定义属性data-dynamic-key
+    // console.log(key)
+    return 'video';//要动态渲染的模块
+}
+
+},{}],"./app/ext/pager":[function(require,module,exports){
+var D = require('drizzlejs');
+function Pager(_ref) {
+    var pageSize = _ref.pageSize,
+        pageTotal = _ref.pageTotal,
+        curPage = _ref.curPage,
+        id = _ref.id,
+        getPage = _ref.getPage,
+        showPageTotalFlag = _ref.showPageTotalFlag,
+        showSkipInputFlag = _ref.showSkipInputFlag,
+        pageAmount = _ref.pageAmount,
+        dataTotal = _ref.dataTotal;
+
+    this.pageSize = pageSize || 5; //分页个数
+    this.pageTotal = pageTotal; //总共多少页
+    this.pageAmount = pageAmount; //每页多少条
+    this.dataTotal = dataTotal; //总共多少数据
+    this.curPage = curPage || 1; //初始页码
+    this.ul = document.createElement('ul');
+    this.id = id;
+    this.getPage = getPage;
+    this.showPageTotalFlag = showPageTotalFlag || false; //是否显示数据统计
+    this.showSkipInputFlag = showSkipInputFlag || false; //是否支持跳转
+    this.init();
+}
+
+// 给实例对象添加公共属性和方法
+Pager.prototype = {
+    init: function init() {
+        var pagination = this.id;
+        pagination.innerHTML = '';
+        this.ul.innerHTML = '';
+        pagination.appendChild(this.ul);
+        var that = this;
+        //首页
+        that.firstPage();
+        //上一页
+        that.lastPage();
+        //分页
+        that.getPages().forEach(function (item) {
+            var li = document.createElement('li');
+            if (item == that.curPage) {
+                li.className = 'active';
+            } else {
+                li.onclick = function () {
+                    that.curPage = parseInt(this.innerHTML);
+                    that.init();
+                    that.getPage(that.curPage);
+                };
+            }
+            li.innerHTML = item;
+            that.ul.appendChild(li);
+        });
+        //下一页
+        that.nextPage();
+        //尾页
+        that.finalPage();
+
+        //是否支持跳转
+        if (that.showSkipInputFlag) {
+            that.showSkipInput();
+        }
+        //是否显示总页数,每页个数,数据
+        if (that.showPageTotalFlag) {
+            that.showPageTotal();
+        }
+    },
+    //首页
+    firstPage: function firstPage() {
+        var that = this;
+        var li = document.createElement('li');
+        li.innerHTML = '首页';
+        this.ul.appendChild(li);
+        li.onclick = function () {
+            var val = parseInt(1);
+            that.curPage = val;
+            that.getPage(that.curPage);
+            that.init();
+        };
+    },
+    //上一页
+    lastPage: function lastPage() {
+        var that = this;
+        var li = document.createElement('li');
+        li.innerHTML = '<';
+        if (parseInt(that.curPage) > 1) {
+            li.onclick = function () {
+                that.curPage = parseInt(that.curPage) - 1;
+                that.init();
+                that.getPage(that.curPage);
+            };
+        } else {
+            li.className = 'disabled';
+        }
+        this.ul.appendChild(li);
+    },
+    //分页
+    getPages: function getPages() {
+        var pag = [];
+        if (this.curPage <= this.pageTotal) {
+            if (this.curPage < this.pageSize) {
+                //当前页数小于显示条数
+                var i = Math.min(this.pageSize, this.pageTotal);
+                while (i) {
+                    pag.unshift(i--);
+                }
+            } else {
+                //当前页数大于显示条数
+                var middle = this.curPage - Math.floor(this.pageSize / 2),
+                    //从哪里开始
+                    i = this.pageSize;
+                if (middle > this.pageTotal - this.pageSize) {
+                    middle = this.pageTotal - this.pageSize + 1;
+                }
+                while (i--) {
+                    pag.push(middle++);
+                }
+            }
+        } else {
+            console.error('当前页数不能大于总页数');
+        }
+        if (!this.pageSize) {
+            console.error('显示页数不能为空或者0');
+        }
+        return pag;
+    },
+    //下一页
+    nextPage: function nextPage() {
+        var that = this;
+        var li = document.createElement('li');
+        li.innerHTML = '>';
+        if (parseInt(that.curPage) < parseInt(that.pageTotal)) {
+            li.onclick = function () {
+                that.curPage = parseInt(that.curPage) + 1;
+                that.init();
+                that.getPage(that.curPage);
+            };
+        } else {
+            li.className = 'disabled';
+        }
+        this.ul.appendChild(li);
+    },
+    //尾页
+    finalPage: function finalPage() {
+        var that = this;
+        var li = document.createElement('li');
+        li.innerHTML = '尾页';
+        this.ul.appendChild(li);
+        li.onclick = function () {
+            var yyfinalPage = that.pageTotal;
+            var val = parseInt(yyfinalPage);
+            that.curPage = val;
+            that.getPage(that.curPage);
+            that.init();
+        };
+    },
+    //是否支持跳转
+    showSkipInput: function showSkipInput() {
+        var that = this;
+        var li = document.createElement('li');
+        li.className = 'totalPage';
+        var span1 = document.createElement('span');
+        span1.innerHTML = '跳转到';
+        li.appendChild(span1);
+        var input = document.createElement('input');
+        input.setAttribute('type', 'number');
+        input.onkeydown = function (e) {
+            var oEvent = e || event;
+            if (oEvent.keyCode == '13') {
+                var val = parseInt(oEvent.target.value);
+                if (typeof val === 'number' && val <= that.pageTotal) {
+                    that.curPage = val;
+                    that.getPage(that.curPage);
+                } else {
+                    alert('跳转页数不能大于总页数 !');
+                }
+                that.init();
+            }
+        };
+        li.appendChild(input);
+        var span2 = document.createElement('span');
+        span2.innerHTML = '页';
+        li.appendChild(span2);
+        this.ul.appendChild(li);
+    },
+    //是否显示总页数,每页个数,数据
+    showPageTotal: function showPageTotal() {
+        var that = this;
+        var li = document.createElement('li');
+        li.innerHTML = '共&nbsp' + that.pageTotal + '&nbsp页';
+        li.className = 'totalPage';
+        this.ul.appendChild(li);
+        var li2 = document.createElement('li');
+        li2.innerHTML = '每页&nbsp' + that.pageAmount + '&nbsp条';
+        li2.className = 'totalPage';
+        this.ul.appendChild(li2);
+        var li3 = document.createElement('li');
+        li3.innerHTML = '合计&nbsp' + that.dataTotal + '&nbsp条数据';
+        li3.className = 'totalPage';
+        this.ul.appendChild(li3);
+    },
 };
 
+/* 组件注册 */
+D.ComponentManager.register('pager', function (view, el, options = {}) {
+    var users = view.bindings[options.model];
+    // console.log(view.options.dataForTemplate[options.length])
+    // var total=view.bindings.totalList.data.length
+    // console.log(view.bindings.totalList,total)
+    // console.log(view.bindings[options.total].data.length)
+    var dataTotal = view.bindings[options.total].data.length
+    var pageTotal = dataTotal ? Math.ceil(dataTotal / 6) : 3
+    var h = new Pager({
+        id: el,
+        curPage: 1, //初始页码
+        pageTotal: pageTotal, //总页数
+        pageAmount: 6, //每页多少条
+        dataTotal: dataTotal || 24, //总共多少条数据
+        pageSize: 6, //可选,分页个数
+        showPageTotalFlag: true, //是否显示数据统计
+        showSkipInputFlag: true, //是否支持跳转
+        getPage: function (page) {
+            //获取当前页数
+            users.options.url = '../testList?_page=' + page + '&_limit=6';
+            D.Request.get(users, {
+                loading: true,
+                type: users.options.method || 'GET',
+            });
+        },
+    });
+    return
+});
 
-},{}],"./app/ext/qr-code":[function(require,module,exports){
+},{"drizzlejs":2}],"./app/ext/pop":[function(require,module,exports){
+var D = require('drizzlejs');
+var _ = require('lodash/collection');
+/* 弹出组件 */
+function Pop(options = {}, view) {
+  var opt = {
+    name: '',
+    age: '',
+    sex: '',
+    id: '',
+    flag: true,
+    checked: false
+  }
+  var userBox = document.createElement('div')
+  var flag = options.show ? options.show : 0
+  if (flag) {
+    userBox.className = "userbox show-box"
+  } else {
+    userBox.className = "userbox hide-box"
+  }
+  var titleArea = document.createElement('div')
+  titleArea.className = "title-area"
+  var userTitle = document.createElement('span')
+  var closeBox = document.createElement('span')
+  userTitle.innerText = "新增用户"
+  userTitle.className = "user-title"
+  closeBox.innerText = "X"
+  closeBox.className = "user-close"
+  titleArea.appendChild(userTitle)
+  titleArea.appendChild(closeBox)
+  var contentArea = document.createElement('div');
+  var content = `<ul class="user-list">
+                <li class="info-row"><span>姓名：</span><input type="text" id="user-name" autocomplete='off'></li>
+                <li class="info-row"><span>年龄：</span><input type="text" id="user-age" autocomplete='off'></li>
+                <li class="info-row"><label for="user-sex">性别:</label><select id="user-sex" >
+                  <option>男</option>
+                  <option>女</option>
+                </select></li>
+              </ul>`
+  contentArea.innerHTML = content
+  contentArea.className = "user-content"
+  var submit = document.createElement('button')
+  submit.innerText = "添加"
+  contentArea.appendChild(submit)
+  userBox.appendChild(titleArea)
+  userBox.appendChild(contentArea)
+  submit.addEventListener('click', function () {
+    var user = view.bindings.protoList,
+        name = document.getElementById('user-name'),
+        age = document.getElementById('user-age'),
+        sex = document.getElementById('user-sex')
+    opt.id = Date.now()
+    opt.name = name.value
+    opt.age = age.value
+    opt.sex = sex.value
+    var params = opt
+    user.set(params, false)
+    D.Request.post(user).then(function () {
+      D.Request.get(user)
+    }).then(function () {
+      location.reload()
+    })
+    userBox.className = "userbox hide-box"
+    options.show = 0
+  })
+  closeBox.addEventListener('click', function () {
+    userBox.className = "userbox hide-box"
+    options.show = 0
+  })
+  return userBox
+}
+
+/* 组件注册 */
+D.ComponentManager.register('pop', function (view, el, options = {}) {
+  var { data } = view.bindings[options.model];
+  el.appendChild(Pop(data, view));
+  return
+});
+
+},{"drizzlejs":2,"lodash/collection":"lodash/collection"}],"./app/ext/qr-code":[function(require,module,exports){
 var D = require('drizzlejs'),//引入框架
     QRCode = require('qrcodejs2');//引入二维码库
 
@@ -189,114 +509,7 @@ D.extend(DynamicView, D.View, {
 
 D.registerView('dynamic', DynamicView);
 
-},{"drizzlejs":2,"lodash/collection":"lodash/collection"}],"./app/listbox/index":[function(require,module,exports){
-exports.items = {
-    main: 'main-rg'
-};
-exports.store = {
-    models:{
-        //定义listbox Model, autoLoad值为after表示模块渲染完成再去后台请求model数据,
-        //url设置请求的接口路径,详情看ppt文档Model-Url部分
-        //最终接口路径(http://localhost:8000/api/courselist)
-        listbox:{autoLoad:'after',url:'../courselist'},
-        filter:{data:'all'} //用来过滤显示的课程数据,默认全部显示
-    },
-    callbacks:{
-        filterCourse:function(payload){
-            if(this.models.filter.data==1)
-              this.models.filter.set('all',true);//显示全部课程
-            else
-              this.models.filter.set(1,true);//只显示男老师的课程
-           
-        }
-    }
-};
-exports.mixin={//可以通过mixin扩展module模块的功能
-    fn1:function(){//扩展1
-
-    },
-    fn2:function(){//扩展2
-
-    }
-};
-
-
-},{}],"./app/listbox/templates":[function(require,module,exports){
-var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
-    return "    <div class=\"list-box\">\r\n        <div data-region=\"main-rg\"></div>\r\n    </div>\r\n";
-},"3":function(container,depth0,helpers,partials,data) {
-    var stack1, alias1=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
-    };
-
-  return "	<div class=\"mbox\">\r\n	    <h1 class=\"brand-title\">课程列表</h1>\r\n        <form><input type=\"checkbox\" id=\"sexcheck\" "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"showMan") : depth0),{"name":"if","hash":{},"fn":container.program(4, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":9,"column":51},"end":{"line":9,"column":90}}})) != null ? stack1 : "")
-    + ">男</input></form>\r\n        <ul>\r\n"
-    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"listData") : depth0),{"name":"each","hash":{},"fn":container.program(6, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":11,"column":10},"end":{"line":13,"column":19}}})) != null ? stack1 : "")
-    + "        </ul>\r\n        <h1 class=\"brand-title\">二维码</h1>\r\n        <div id=\"qr-box\" class=\"qrcode\"></div>\r\n	</div>\r\n";
-},"4":function(container,depth0,helpers,partials,data) {
-    return "checked='checked'";
-},"6":function(container,depth0,helpers,partials,data) {
-    var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
-    };
-
-  return "            <li><span>科目："
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":12,"column":25},"end":{"line":12,"column":33}}}) : helper)))
-    + "</span>   <span class=\"spleft\">教师："
-    + alias4(((helper = (helper = lookupProperty(helpers,"teacher") || (depth0 != null ? lookupProperty(depth0,"teacher") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"teacher","hash":{},"data":data,"loc":{"start":{"line":12,"column":67},"end":{"line":12,"column":78}}}) : helper)))
-    + "</span></li>\r\n";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, options, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
-    }, buffer = "";
-
-  stack1 = ((helper = (helper = lookupProperty(helpers,"module") || (depth0 != null ? lookupProperty(depth0,"module") : depth0)) != null ? helper : alias2),(options={"name":"module","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":1,"column":0},"end":{"line":5,"column":11}}}),(typeof helper === "function" ? helper.call(alias1,options) : helper));
-  if (!lookupProperty(helpers,"module")) { stack1 = container.hooks.blockHelperMissing.call(depth0,stack1,options)}
-  if (stack1 != null) { buffer += stack1; }
-  return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":0},"end":{"line":18,"column":9}}})) != null ? stack1 : "");
-},"useData":true});
-},{"handlebars/runtime":"handlebars/runtime"}],"./app/listbox/view-main":[function(require,module,exports){
-var _ = require('lodash/collection');//加载用到的工具模块
-exports.bindings = { //绑定此视图用到的model,值为true表示数据改变后会刷新页面
-    listbox: true,   //绑定index.js定义的listbox model
-    filter:true
-};
-exports.dataForTemplate = { //模板载入之前处理一下需要传递给模板的数据
-    listData: function(data) {
-        //data包含我们绑定的model: listbox和filter
-       //data.listbox就是model请求后台接口获取的json数据，我们这里返回课程列表的数据，
-       //然后在模板中渲染
-       var filterTxt = data.filter;
-       if (!filterTxt || filterTxt === 'all') {
-            return data.listbox;
-       }
-       return _.filter(data.listbox, {sex: filterTxt});
-    },
-    showMan:function(data){
-       return data.filter==1;
-    }
-};
-exports.actions = {
-    'change sexcheck':'filterCourse'
-};
-exports.components=[{
-	id: 'qr-box',  //templates.hbs里定义的元素
-	name: 'qrcode', //在qr-code.js里注册的组件名
-	options: {width:200,height:200}   //此组件配置属性
-}];
-
-
-},{"lodash/collection":"lodash/collection"}],"./app/menu/index":[function(require,module,exports){
+},{"drizzlejs":2,"lodash/collection":"lodash/collection"}],"./app/menu/index":[function(require,module,exports){
 exports.items = {
     main: 'main'
 };
@@ -304,9 +517,9 @@ exports.items = {
 
 },{}],"./app/menu/templates":[function(require,module,exports){
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
-    return "   <div class=\"header\" data-region=\"main\">\r\n    \r\n   </div>\r\n";
+    return "    <div class=\"header\" data-region=\"main\"></div>\n";
 },"3":function(container,depth0,helpers,partials,data) {
-    return "    <h1 class=\"brand-title\">Drizzle Demo展示</h1>\r\n    <nav class=\"nav\">\r\n        <ul class=\"nav-list\">\r\n             <!--导航到todos模块 -->\r\n            <li class=\"nav-item\"><a class=\"pure-button\" id=\"aid2\" href=\"#/todos\">todos模块</a></li>\r\n            <!--导航到listbox模块 -->\r\n            <li class=\"nav-item\"><a class=\"pure-button\" href=\"#/listbox\">课程列表模块</a></li>\r\n            <!--声明式加载模块示例 -->\r\n            <li class=\"nav-item\"><a class=\"pure-button\" href=\"#/dynamic\">声明式加载模块</a></li>\r\n            <!--数据请求示例 -->\r\n            <li class=\"nav-item\"><a class=\"pure-button\" href=\"#/request\">数据请求模块</a></li>\r\n            <li class=\"nav-item\"><a class=\"pure-button\" href=\"#/proto\">PROTO</a></li>\r\n        </ul>\r\n    </nav>\r\n";
+    return "    <h1 class=\"demo-title\">Drizzle Demo展示</h1>\n    <nav class=\"nav\">\n        <ul class=\"nav-list\">\n            <li class=\"nav-item\">\n                <a class=\"pure-button\" href=\"#/proto\">列表CRUD</a>\n            </li>\n            <li class=\"nav-item\">\n                <a class=\"pure-button\" href=\"#/show\">引入第三方组件</a>\n            </li>\n            <li class=\"nav-item\">\n                <a class=\"pure-button\" href=\"#/dynamic\">声明式渲染</a>\n            </li>\n            <li class=\"nav-item\">\n                <a class=\"pure-button\" href=\"#/video\">video页面</a>\n            </li>\n        </ul>\n    </nav>\n";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, options, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -315,24 +528,32 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
         return undefined
     }, buffer = "";
 
-  stack1 = ((helper = (helper = lookupProperty(helpers,"module") || (depth0 != null ? lookupProperty(depth0,"module") : depth0)) != null ? helper : alias2),(options={"name":"module","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":1,"column":0},"end":{"line":5,"column":11}}}),(typeof helper === "function" ? helper.call(alias1,options) : helper));
+  stack1 = ((helper = (helper = lookupProperty(helpers,"module") || (depth0 != null ? lookupProperty(depth0,"module") : depth0)) != null ? helper : alias2),(options={"name":"module","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":1,"column":0},"end":{"line":3,"column":11}}}),(typeof helper === "function" ? helper.call(alias1,options) : helper));
   if (!lookupProperty(helpers,"module")) { stack1 = container.hooks.blockHelperMissing.call(depth0,stack1,options)}
   if (stack1 != null) { buffer += stack1; }
-  return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":0},"end":{"line":22,"column":9}}})) != null ? stack1 : "");
+  return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":4,"column":0},"end":{"line":22,"column":9}}})) != null ? stack1 : "");
 },"useData":true});
 },{"handlebars/runtime":"handlebars/runtime"}],"./app/menu/view-main":[function(require,module,exports){
-
-},{}],"./app/proto/index":[function(require,module,exports){
+arguments[4]["./app/dynamic/view-header"][0].apply(exports,arguments)
+},{"dup":"./app/dynamic/view-header"}],"./app/proto/index":[function(require,module,exports){
 var _ = require('lodash/collection');
 exports.items = {
-  main: 'main'
+  main: 'main',
+  footer: "footer"
 };
 exports.store = {
   models: {
-    protoList: { autoLoad: 'after', url: '../testList' },
-    filter: { data: 'all' }
+    protoList: { url: '../testList?_page=1&_limit=6' },
+    filter: { data: 'all' },
+    user: { data: {} },
+    totalList: { url: '../testList', autoLoad: 'after' }
   },
   callbacks: {
+    // 请求列表数据
+    getProtoList: function () {
+      var { protoList } = this.models
+      return this.get(protoList)
+    },
     // 只显示男性
     filterSex: function (payload) {
       if (this.models.filter.data === "男")
@@ -341,56 +562,87 @@ exports.store = {
         this.models.filter.set("男", true);//只显示男老师的课程
     },
     // 删除单项
-    removeTodo: function (payload) {
-      var protoList = this.models.protoList;
-      protoList.set(_.reject(protoList.data, { id: payload.id }), true);
+    removeUser: function (payload) {
+      var { protoList } = this.models;
+      var oriUrl = protoList.options.url
+      protoList.options.url = `../testList/${payload.id}`
+      var that = this
+      this.del(protoList).then(function () {
+        protoList.options.url = oriUrl
+        that.get(protoList)
+      })
     },
     //切换修改
     toEdit: function (payload) {
-      var protoList = this.models.protoList;
-      _.find(protoList.data, { id: payload.id }).flag = payload.flag;
-      if(payload.flag){
-        _.find(protoList.data, { id: payload.id }).name = payload.name;
-      }
+      var { protoList } = this.models;
+      _.find(protoList.data, { id: +payload.id }).flag = payload.flag;
       protoList.changed()
+      if (payload.flag) {
+        _.find(protoList.data, { id: +payload.id }).name = payload.name;
+        var params = protoList.data.find(function(_){return _.id==payload.id})
+        var oriUrl = protoList.options.url
+        protoList.set(params, false)
+        protoList.options.url = `../testList/`
+        var that = this
+        this.put(protoList).then(function () {
+          protoList.options.url = oriUrl
+          that.get(protoList)
+        })
+      }
     },
     // 勾选单个
-    completeTodo: function(payload) {
-      var protoList = this.models.protoList;
+    completeUser: function (payload) {
+      var { protoList } = this.models;
       _.find(protoList.data, { id: payload.id }).checked = payload.checked;
       protoList.changed();
     },
     // 勾选全部
-    completeAllTodo: function(payload) {
-      var protoList = this.models.protoList;
-      _.map(protoList.data, function(item) {
-          item.checked = payload.checked;
+    completeAllUser: function (payload) {
+      var { protoList } = this.models;
+      _.map(protoList.data, function (item) {
+        item.checked = payload.checked;
       });
       protoList.changed();
     },
     // 删除已勾选
-    removeChecked: function(payload) {
-      var protoList = this.models.protoList;
+    removeChecked: function (payload) {
+      var { protoList } = this.models;
       protoList.set(_.reject(protoList.data, { checked: true }), true);
     },
     // 搜索
-    searchTodo: function(payload) {
-      var protoList = this.models.protoList;
-      var target=_.filter(protoList.data, function(item){
+    searchUser: function (payload) {
+      var { protoList } = this.models;
+      var target = _.filter(protoList.data, function (item) {
         return item.name.includes(payload.name)
       })
-      // console.log(target)
-      if(!target.length){
-        alert("未找到"+payload.name)
-        return 
+      if (!target.length) {
+        alert("未找到" + payload.name)
+        return
       }
       protoList.set(target, true);
     },
+    // 重置搜索
+    resetUser: function (payload) {
+      location.reload()
+    },
+    // 添加用户
+    addUser: function (payload) {
+      var { user } = this.models;
+      user.data.show = 1;
+      user.changed()
+    }
   }
+};
+exports.beforeRender = function () {
+  this.dispatch('getProtoList')
+};
+exports.afterClose=function(){
+  // var { protoList } = this.models
+  console.log(this.models)
 }
 },{"lodash/collection":"lodash/collection"}],"./app/proto/templates":[function(require,module,exports){
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
-    return "<div class=\"proto\">\r\n  <div data-region=\"main\"></div>\r\n</div>\r\n";
+    return "    <div class=\"proto\">\n        <div data-region=\"main\"></div>\n        <div data-region=\"footer\"></div>\n    </div>\n";
 },"3":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -399,22 +651,20 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
         return undefined
     };
 
-  return "<div class=\"box\">\r\n  <h1 class=\"title\">myProto</h1>\r\n  <div class=\"proto-header\">\r\n    <div class=\"proto-search\">\r\n      <input type=\"text\" id=\"new-task\" class=\"new-task\" placeholder=\"姓名\" autocomplete=\"off\" data-name=\"input\">\r\n      <button id=\"click2new\" data-name=\"button\">查询</button>\r\n    </div>\r\n    <form class=\"male\"><input type=\"checkbox\" id=\"sexcheck\" "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"showMan") : depth0),{"name":"if","hash":{},"fn":container.program(4, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":14,"column":60},"end":{"line":14,"column":100}}})) != null ? stack1 : "")
-    + "> 男</input></form>\r\n  </div>\r\n  <ul class=\"name-list\">\r\n    <li class=\"name-title\"><input type=\"checkbox\" id=\"toggleAll\" "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"completed") : depth0),{"name":"if","hash":{},"fn":container.program(6, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":17,"column":65},"end":{"line":17,"column":97}}})) != null ? stack1 : "")
-    + "><span> 姓名</span></li>\r\n    <li class=\"age-title\"><span>年龄</span></li>\r\n    <li class=\"sex-title\"><span>性别</span></li>\r\n  </ul>\r\n  <ul class=\"proto-list\">\r\n"
-    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"listData") : depth0),{"name":"each","hash":{},"fn":container.program(8, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":22,"column":4},"end":{"line":35,"column":13}}})) != null ? stack1 : "")
-    + "  </ul>\r\n  <div class=\"operate\">\r\n    <div class=\"status\">\r\n      已完成：<span>"
-    + alias4(((helper = (helper = lookupProperty(helpers,"completedNum") || (depth0 != null ? lookupProperty(depth0,"completedNum") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"completedNum","hash":{},"data":data,"loc":{"start":{"line":39,"column":16},"end":{"line":39,"column":32}}}) : helper)))
-    + "</span>/<span>"
-    + alias4(((helper = (helper = lookupProperty(helpers,"totalNum") || (depth0 != null ? lookupProperty(depth0,"totalNum") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"totalNum","hash":{},"data":data,"loc":{"start":{"line":39,"column":46},"end":{"line":39,"column":58}}}) : helper)))
-    + "</span>\r\n    </div>\r\n    <button class=\"del-all\" id=\"delAll\">批量删除</button>\r\n  </div>\r\n</div>\r\n";
+  return "    <div class=\"box\">\n        <h1 id=\"title\" class=\"title\">个人信息</h1>\n        <div class=\"proto-header\">\n            <div class=\"proto-search\">\n                <input id=\"new-task\" class=\"new-task\" type=\"text\" placeholder=\"姓名\" autocomplete=\"off\" data-name=\"input\"/>\n                <button id=\"click2new\" data-name=\"button\">查询</button>\n                <button id=\"reset\">重置</button>\n                <button id=\"add\">添加</button>\n            </div>\n            <form class=\"male\">\n                <input id=\"sexcheck\" "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"showMan") : depth0),{"name":"if","hash":{},"fn":container.program(4, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":18,"column":37},"end":{"line":18,"column":67}}})) != null ? stack1 : "")
+    + " type=\"checkbox\"/>\n                <span>男</span>\n            </form>\n        </div>\n        <ul class=\"name-list\">\n            <li class=\"name-title\">\n                <input id=\"toggleAll\" "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"completed") : depth0),{"name":"if","hash":{},"fn":container.program(4, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":24,"column":38},"end":{"line":24,"column":70}}})) != null ? stack1 : "")
+    + " type=\"checkbox\"/>\n                <span>姓名</span>\n            </li>\n            <li class=\"age-title\">\n                <span>年龄</span>\n            </li>\n            <li class=\"sex-title\">\n                <span>性别</span>\n            </li>\n        </ul>\n        <ul class=\"proto-list\">\n"
+    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"listData") : depth0),{"name":"each","hash":{},"fn":container.program(6, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":35,"column":12},"end":{"line":48,"column":21}}})) != null ? stack1 : "")
+    + "        </ul>\n    </div>\n    <div class=\"operate\">\n        <div class=\"status\">已完成：\n            <span>"
+    + alias4(((helper = (helper = lookupProperty(helpers,"completedNum") || (depth0 != null ? lookupProperty(depth0,"completedNum") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"completedNum","hash":{},"data":data,"loc":{"start":{"line":53,"column":18},"end":{"line":53,"column":34}}}) : helper)))
+    + "/</span>\n            <span>"
+    + alias4(((helper = (helper = lookupProperty(helpers,"totalNum") || (depth0 != null ? lookupProperty(depth0,"totalNum") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"totalNum","hash":{},"data":data,"loc":{"start":{"line":54,"column":18},"end":{"line":54,"column":30}}}) : helper)))
+    + "</span>\n        </div>\n        <button id=\"delAll\" class=\"del-all\">批量删除</button>\n    </div>\n    <div id=\"pop-box\"></div>\n";
 },"4":function(container,depth0,helpers,partials,data) {
-    return "checked='checked' ";
-},"6":function(container,depth0,helpers,partials,data) {
     return " checked";
-},"8":function(container,depth0,helpers,partials,data) {
+},"6":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -422,26 +672,24 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
         return undefined
     };
 
-  return "    <li class=\"list-item\">\r\n      <div class=\"name\">\r\n        <input type=\"checkbox\" class=\"toggle\" "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"checked") : depth0),{"name":"if","hash":{},"fn":container.program(9, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":25,"column":46},"end":{"line":25,"column":76}}})) != null ? stack1 : "")
+  return "                <li class=\"list-item\">\n                    <div class=\"name\">\n                        <input class=\"toggle\" "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"checked") : depth0),{"name":"if","hash":{},"fn":container.program(4, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":38,"column":46},"end":{"line":38,"column":76}}})) != null ? stack1 : "")
     + " type=\"checkbox\" id=\"toggle-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":25,"column":104},"end":{"line":25,"column":110}}}) : helper)))
-    + "\"\r\n          data-name=\"id\" data-value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":26,"column":37},"end":{"line":26,"column":43}}}) : helper)))
-    + "\">\r\n        "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"flag") : depth0),{"name":"if","hash":{},"fn":container.program(11, data, 0),"inverse":container.program(13, data, 0),"data":data,"loc":{"start":{"line":27,"column":8},"end":{"line":29,"column":37}}})) != null ? stack1 : "")
-    + "\r\n      </div>\r\n      <div class=\"age\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"age") || (depth0 != null ? lookupProperty(depth0,"age") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"age","hash":{},"data":data,"loc":{"start":{"line":31,"column":23},"end":{"line":31,"column":30}}}) : helper)))
-    + "</div>\r\n      <div class=\"sex\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"sex") || (depth0 != null ? lookupProperty(depth0,"sex") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"sex","hash":{},"data":data,"loc":{"start":{"line":32,"column":23},"end":{"line":32,"column":30}}}) : helper)))
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":38,"column":104},"end":{"line":38,"column":110}}}) : helper)))
+    + "\" data-name=\"id\" data-value=\""
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":38,"column":139},"end":{"line":38,"column":145}}}) : helper)))
+    + "\"/>\n"
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"flag") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.program(9, data, 0),"data":data,"loc":{"start":{"line":39,"column":24},"end":{"line":43,"column":31}}})) != null ? stack1 : "")
+    + "                    </div>\n                    <div class=\"age\">"
+    + alias4(((helper = (helper = lookupProperty(helpers,"age") || (depth0 != null ? lookupProperty(depth0,"age") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"age","hash":{},"data":data,"loc":{"start":{"line":45,"column":37},"end":{"line":45,"column":44}}}) : helper)))
+    + "</div>\n                    <div class=\"sex\">"
+    + alias4(((helper = (helper = lookupProperty(helpers,"sex") || (depth0 != null ? lookupProperty(depth0,"sex") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"sex","hash":{},"data":data,"loc":{"start":{"line":46,"column":37},"end":{"line":46,"column":44}}}) : helper)))
     + "<button class=\"del\" id=\"destroy-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":32,"column":62},"end":{"line":32,"column":68}}}) : helper)))
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":46,"column":76},"end":{"line":46,"column":82}}}) : helper)))
     + "\" data-name=\"id\" data-value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":32,"column":97},"end":{"line":32,"column":103}}}) : helper)))
-    + "\">删除</button>\r\n      </div>\r\n    </li>\r\n";
-},"9":function(container,depth0,helpers,partials,data) {
-    return "checked ";
-},"11":function(container,depth0,helpers,partials,data) {
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":46,"column":111},"end":{"line":46,"column":117}}}) : helper)))
+    + "\">删除</button></div>\n                </li>\n";
+},"7":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -449,14 +697,14 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
         return undefined
     };
 
-  return "<span id=\"edit-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":27,"column":35},"end":{"line":27,"column":41}}}) : helper)))
+  return "                            <span id=\"edit-"
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":40,"column":43},"end":{"line":40,"column":49}}}) : helper)))
     + "\" data-name=\"id\" data-value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":27,"column":70},"end":{"line":27,"column":76}}}) : helper)))
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":40,"column":78},"end":{"line":40,"column":84}}}) : helper)))
     + "\" data-type=\"span\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":27,"column":95},"end":{"line":27,"column":103}}}) : helper)))
-    + "</span>\r\n        ";
-},"13":function(container,depth0,helpers,partials,data) {
+    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":40,"column":103},"end":{"line":40,"column":111}}}) : helper)))
+    + "</span>\n";
+},"9":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -464,13 +712,15 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
         return undefined
     };
 
-  return "<input class=\"edit-todo\" type=\"text\" value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":28,"column":60},"end":{"line":28,"column":68}}}) : helper)))
+  return "                            <input class=\"edit-todo\" type=\"text\" value=\""
+    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":42,"column":72},"end":{"line":42,"column":80}}}) : helper)))
     + "\" id=\"input-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":28,"column":80},"end":{"line":28,"column":86}}}) : helper)))
-    + "\" data-name=\"id\"\r\n          data-value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":29,"column":22},"end":{"line":29,"column":28}}}) : helper)))
-    + "\">";
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":42,"column":92},"end":{"line":42,"column":98}}}) : helper)))
+    + "\" data-name=\"id\" data-value=\""
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":42,"column":127},"end":{"line":42,"column":133}}}) : helper)))
+    + "\"/>\n";
+},"11":function(container,depth0,helpers,partials,data) {
+    return "    <div id=\"pagerbox\" class=\"pagerbox pagination\"></div>\n";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, options, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -479,16 +729,32 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
         return undefined
     }, buffer = "";
 
-  stack1 = ((helper = (helper = lookupProperty(helpers,"module") || (depth0 != null ? lookupProperty(depth0,"module") : depth0)) != null ? helper : alias2),(options={"name":"module","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":1,"column":0},"end":{"line":5,"column":11}}}),(typeof helper === "function" ? helper.call(alias1,options) : helper));
+  stack1 = ((helper = (helper = lookupProperty(helpers,"module") || (depth0 != null ? lookupProperty(depth0,"module") : depth0)) != null ? helper : alias2),(options={"name":"module","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":1,"column":0},"end":{"line":6,"column":11}}}),(typeof helper === "function" ? helper.call(alias1,options) : helper));
   if (!lookupProperty(helpers,"module")) { stack1 = container.hooks.blockHelperMissing.call(depth0,stack1,options)}
   if (stack1 != null) { buffer += stack1; }
-  return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":0},"end":{"line":44,"column":9}}})) != null ? stack1 : "");
+  return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":7,"column":0},"end":{"line":59,"column":9}}})) != null ? stack1 : "")
+    + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"footer",{"name":"view","hash":{},"fn":container.program(11, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":60,"column":0},"end":{"line":62,"column":9}}})) != null ? stack1 : "");
 },"useData":true});
-},{"handlebars/runtime":"handlebars/runtime"}],"./app/proto/view-main":[function(require,module,exports){
+},{"handlebars/runtime":"handlebars/runtime"}],"./app/proto/view-footer":[function(require,module,exports){
+var _ = require('lodash/collection');
+exports.bindings = {
+    protoList: false,
+    totalList: true
+};
+exports.components = [{
+    id: 'pagerbox',
+    name: 'pager',
+    options: {
+        model: 'protoList', total: 'totalList'
+    }
+}];
+},{"lodash/collection":"lodash/collection"}],"./app/proto/view-main":[function(require,module,exports){
 var _ = require('lodash/collection');//加载用到的工具模块
 exports.bindings = {
   protoList: true,
-  filter: true
+  filter: true,
+  user: true,
+  totalList: true
 };
 exports.events = {
   'dblclick edit-*': 'showEdit',
@@ -522,19 +788,20 @@ exports.dataForTemplate = {
   },
   totalNum: function (data) {
     return data.protoList.length
-  },
+  }
 };
 exports.actions = {
   'change sexcheck': 'filterSex',
-  'click  destroy-*': 'removeTodo',
+  'click  destroy-*': 'removeUser',
   'dblclick  edit-*': 'toEdit',
   'blur  input-*': 'toEdit',
-  'change toggle-*': 'completeTodo',
-  'change toggleAll': 'completeAllTodo',
+  'change toggle-*': 'completeUser',
+  'change toggleAll': 'completeAllUser',
+  'keypress new-task': 'searchUser',
+  'click click2new': 'searchUser',
+  'click reset': 'resetUser',
+  'click add': 'addUser',
   'click delAll': 'removeChecked',
-  'keypress new-task': 'searchTodo',
-  'click click2new': 'searchTodo',
-
 };
 exports.dataForActions = {
   toEdit: function (data, e) {
@@ -546,15 +813,15 @@ exports.dataForActions = {
     }
     return data
   },
-  completeTodo: function (data, e) {
+  completeUser: function (data, e) {
     data.checked = e.target.checked;
     return data;
   },
-  completeAllTodo: function (data, e) {
+  completeAllUser: function (data, e) {
     data.checked = e.target.checked;
     return data;
   },
-  searchTodo: function (data, e) {
+  searchUser: function (data, e) {
     var name
     if (e.target.dataset.name === "button") {
       name = this.$('new-task').value
@@ -573,473 +840,60 @@ exports.dataForActions = {
     this.$('new-task').value = '';
     return data;
   },
-}
-
-},{"lodash/collection":"lodash/collection"}],"./app/request/index":[function(require,module,exports){
-exports.items = {
-    main: 'main-r'
 };
-exports.store = {
-    models: {
-        getM: { url: '../getPlayList'}, //url表示服务端提供的api接口
-        postM: { url: '../ask/post'},
-        deleteM: { url: '../ask/delete'},
-        putM: { url: '../ask/put'},
-        state: { data: [] }
-    },
-    callbacks: {
-        doGet: function(option) {
-            var model = this.models.getM;
-            var stateModel = this.models.state;
-            //var params = {id:'aeax'};
-            //model.set(params);
-            return this.get(model).then(function(data) {
-            	console.log(data);
-            	model.changed();
-            	stateModel.data.push('数据');
-            	stateModel.changed();
-            });  
-        },
-        doPost: function(option) {
-            var model = this.models.postM;
-            var params = {objectID:'123456'};
-            model.set(params);
-            return this.post(model).then(function() {
-                alert('操作成功');
-            });  
-        },
-        doDelete: function(option) {
-            var model = this.models.deleteM;
-            var params = {id:'123456'};
-            model.set(params);
-            return this.del(model).then(function() {
-                //alert('操作成功');
-            });  
-        },
-        doPut: function(option) {
-            var model = this.models.putM;
-            var params = {objectID:'123456'};
-            model.set(params);
-            return this.put(model).then(function() {
-                alert('操作成功');
-            });  
-        }
-    }
-};
-
-exports.beforeRender = function() {
-};
+exports.components = [{
+  id: 'pop-box',  //templates.hbs里定义的元素
+  name: 'pop', //ext目录下的组件名
+  options: { model: 'user' }
+}]
 
 
 
-},{}],"./app/request/templates":[function(require,module,exports){
-var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
-    return "   <div class=\"header\" data-region=\"main-r\">\r\n    \r\n   </div>\r\n";
-},"3":function(container,depth0,helpers,partials,data) {
-    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
-    };
-
-  return "    <h1 class=\"brand-title\" style=\"text-align:center\">与后台数据交互示例</h1>\r\n    <div class=\"talign ttop\">\r\n        <button id=\"getID\">Get请求</button>\r\n        <button id=\"postID\">Post请求</button>\r\n        <button id=\"deleteID\">Delete请求</button>\r\n        <button id=\"putID\">Put请求</button>\r\n    </div>\r\n    <div class=\"ttop mlist\">\r\n        <ul>\r\n"
-    + ((stack1 = lookupProperty(helpers,"each").call(depth0 != null ? depth0 : (container.nullContext || {}),((stack1 = (depth0 != null ? lookupProperty(depth0,"getM") : depth0)) != null ? lookupProperty(stack1,"aeax") : stack1),{"name":"each","hash":{},"fn":container.program(4, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":16,"column":12},"end":{"line":18,"column":21}}})) != null ? stack1 : "")
-    + "        </ul>\r\n    </div>\r\n";
-},"4":function(container,depth0,helpers,partials,data) {
-    var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
-    };
-
-  return "                <li><a title=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"url") || (depth0 != null ? lookupProperty(depth0,"url") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"url","hash":{},"data":data,"loc":{"start":{"line":17,"column":30},"end":{"line":17,"column":37}}}) : helper)))
-    + "\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"videoName") || (depth0 != null ? lookupProperty(depth0,"videoName") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"videoName","hash":{},"data":data,"loc":{"start":{"line":17,"column":39},"end":{"line":17,"column":52}}}) : helper)))
-    + "</a></li>\r\n";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, options, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
-    }, buffer = "";
-
-  stack1 = ((helper = (helper = lookupProperty(helpers,"module") || (depth0 != null ? lookupProperty(depth0,"module") : depth0)) != null ? helper : alias2),(options={"name":"module","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":1,"column":0},"end":{"line":5,"column":11}}}),(typeof helper === "function" ? helper.call(alias1,options) : helper));
-  if (!lookupProperty(helpers,"module")) { stack1 = container.hooks.blockHelperMissing.call(depth0,stack1,options)}
-  if (stack1 != null) { buffer += stack1; }
-  return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":0},"end":{"line":21,"column":9}}})) != null ? stack1 : "");
-},"useData":true});
-},{"handlebars/runtime":"handlebars/runtime"}],"./app/request/view-main":[function(require,module,exports){
-exports.bindings = { //绑定此视图用到的model
-    getM: true, //值为true表示数据改变后会刷新页面
-    state: 'handleStateChange' // state model数据改变后会回调handleStateChange函数
-};
-
-//绑定页面操作触发与index.js定义的回调函数的关联
-exports.actions = {
-    'click getID': 'doGet',
-    'click postID': 'doPost',//绑定页面ID=postID的元素,点击时触发index.js的this.store.callbacks.doPost方法
-    'click deleteID': 'doDelete',
-    'click putID*': 'doPut'
-};
-exports.actionCallbacks = { //请求成功后会回调这里的方法，方法名和上面actions里定义的方法名要相同
-	doGet: function() {
-		alert('请求数据成功');
-	}
-};
-exports.handleStateChange = function() {
-	console.log('state model data changed');
-};
-
-
-},{}],"./app/router":[function(require,module,exports){
+},{"lodash/collection":"lodash/collection"}],"./app/router":[function(require,module,exports){
 module.exports = {
     routes: {
-        todos: 'showTodos', //showTodos对应下面定义的showTodos函数
-        listbox: 'showListBox',
+        show: 'showShow',//showShow对应下面定义的showTodos函数
         dynamic: 'showDynamic',
-        request: 'showRequest',
-        proto: 'showProto'
+        proto: 'showProto',
+        video: 'showVideo',
     },
-
-    showTodos: function() {
-        //在名为content的Region中展示todos模块
-        return this.app.show('content', 'todos', { forceRender: false });
-    },
-    showListBox: function() {
-         //在名为content的Region中展示listbox模块
-        return this.app.show('content', 'listbox', { forceRender: true });
+    showShow: function() {
+         //在名为content的Region中展示show模块
+        return this.app.show('content', 'show', { forceRender: true });
     },
     showDynamic: function() {
     	//在名为content的Region中展示dynamic模块
         return this.app.show('content', 'dynamic', { forceRender: true });
     },
-    showRequest: function() {
-    	//在名为content的Region中展示request模块
-        return this.app.show('content', 'request', { forceRender: true });
-    },
     showProto: function() {
     	//在名为content的Region中展示proto模块
-        return this.app.show('content', 'proto', { forceRender: true });
-    }
-};
-
-},{}],"./app/todos/index":[function(require,module,exports){
-var D = require('drizzlejs'),
-    _ = require('lodash/collection');
-
-exports.store = {
-    callbacks: {
-        updateTodo: function(payload) {
-            var todos = this.models.todos;
-            _.find(todos.data, 'id', payload.id).text = payload.text;
-            todos.changed();
-        },
-        removeTodo: function(payload) {
-            var todos = this.models.todos;
-            todos.set(_.reject(todos.data, { id: payload.id }), true);
-        },
-        completeTodo: function(payload) {
-            var todos = this.models.todos;
-            _.find(todos.data, { id: payload.id }).completed = payload.completed;
-            todos.changed();
-        },
-        toggleAllTodos: function(payload) {
-            var todos = this.models.todos;
-            _.map(todos.data, function(item) {
-                item.completed = payload.completed;
-            });
-            todos.changed();
-        },
-        createTodo: function(payload) {
-            var todos = this.models.todos;
-            todos.data.unshift({ id: D.uniqueId('todo'), text: payload.text, completed: false });
-            todos.changed();
-        },
-        clearCompleted: function() {
-            var todos = this.models.todos;
-            todos.set(_.reject(todos.data, { completed: true }), true);
-        }
+        return this.app.show('content', 'proto', { forceRender: false });
     },
-
-    models: {//这里定义了两个model
-        todos: { autoLoad: 'after'},
-        filter: { data: 'all' }
+    showVideo: function() {
+    	//在名为content的Region中展示proto模块
+        return this.app.show('content', 'video', { forceRender: true });
     }
 };
 
-exports.items = {//定义了视图view与模板region的绑定关系
-    header: 'header',//视图header与.hbs模板中名为header的region绑定
-    main: 'main',   ////视图main与.hbs模板中名为main的region绑定
-    footer: 'footer'
-};
-
-exports.mixin = {
-    filter: function(id) {
-        this.store.models.filter.set(id, true);
-    }
-};
-
-},{"drizzlejs":2,"lodash/collection":"lodash/collection"}],"./app/todos/router":[function(require,module,exports){
-module.exports = { //定义属于todos模块的子路由
-    routes: {
-        'fit/:id': 'filterTodos',//filterTodos对应下面定义的filterTodos函数
-    },
-
-    filterTodos: function(fitid) {
-    	alert('子路由:' + fitid);
-    	//这里用来切换到新的模块
-    	//return this.app.show('content', 'knowledge/details', { id: id });
-    }
-};
-
-},{}],"./app/todos/templates":[function(require,module,exports){
-var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
-    return "    <div class=\"todoapp\">\n        <div data-region=\"header\"></div>\n        <div data-region=\"main\"></div>\n        <div data-region=\"footer\"></div>\n    </div>\n";
-},"3":function(container,depth0,helpers,partials,data) {
-    return "    <h1>todos</h1>\n    <form>\n        <input id=\"new-todo\" class=\"new-todo\" placeholder=\"What needs to be done?\" name=\"text\" autocomplete=\"off\"/>\n    </form>\n";
-},"5":function(container,depth0,helpers,partials,data) {
-    var stack1, alias1=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
-    };
-
-  return "    <div class=\"main\" "
-    + ((stack1 = lookupProperty(helpers,"unless").call(alias1,(depth0 != null ? lookupProperty(depth0,"haveItem") : depth0),{"name":"unless","hash":{},"fn":container.program(6, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":15,"column":22},"end":{"line":15,"column":68}}})) != null ? stack1 : "")
-    + ">\n        <input id=\"toggleAll\" class=\"toggle-all\" "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"completed") : depth0),{"name":"if","hash":{},"fn":container.program(8, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":16,"column":49},"end":{"line":16,"column":85}}})) != null ? stack1 : "")
-    + " type=\"checkbox\"/>\n        <ul class=\"todo-list\">"
-    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"todos") : depth0),{"name":"each","hash":{},"fn":container.program(10, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":17,"column":30},"end":{"line":29,"column":17}}})) != null ? stack1 : "")
-    + "</ul>\n    </div>\n";
-},"6":function(container,depth0,helpers,partials,data) {
-    return " class=\"hidden\"";
-},"8":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
-    };
-
-  return " "
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"checked") || (depth0 != null ? lookupProperty(depth0,"checked") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"checked","hash":{},"data":data,"loc":{"start":{"line":16,"column":67},"end":{"line":16,"column":78}}}) : helper)));
-},"10":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
-    };
-
-  return "\n            <li "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"completed") : depth0),{"name":"if","hash":{},"fn":container.program(11, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":18,"column":16},"end":{"line":18,"column":58}}})) != null ? stack1 : "")
-    + ">\n                <div class=\"view\">\n                    <input class=\"toggle\" "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"completed") : depth0),{"name":"if","hash":{},"fn":container.program(8, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":20,"column":42},"end":{"line":20,"column":78}}})) != null ? stack1 : "")
-    + " type=\"checkbox\" id=\"toggle-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":20,"column":106},"end":{"line":20,"column":112}}}) : helper)))
-    + "\" data-name=\"id\" data-value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":20,"column":141},"end":{"line":20,"column":147}}}) : helper)))
-    + "\"/>\n                    <label id=\"edit-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":21,"column":36},"end":{"line":21,"column":42}}}) : helper)))
-    + "\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"text") || (depth0 != null ? lookupProperty(depth0,"text") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"text","hash":{},"data":data,"loc":{"start":{"line":21,"column":44},"end":{"line":21,"column":52}}}) : helper)))
-    + "</label>\n                    <button class=\"destroy\" id=\"destroy-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":22,"column":56},"end":{"line":22,"column":62}}}) : helper)))
-    + "\" data-name=\"id\" data-value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":22,"column":91},"end":{"line":22,"column":97}}}) : helper)))
-    + "\"></button>\n                </div>\n                <form>\n                    <input class=\"edit\" value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"text") || (depth0 != null ? lookupProperty(depth0,"text") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"text","hash":{},"data":data,"loc":{"start":{"line":25,"column":47},"end":{"line":25,"column":55}}}) : helper)))
-    + "\" id=\"input-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":25,"column":67},"end":{"line":25,"column":73}}}) : helper)))
-    + "\" name=\"text\"/>\n                    <input type=\"hidden\" name=\"id\" value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":26,"column":58},"end":{"line":26,"column":64}}}) : helper)))
-    + "\"/>\n                </form>\n            </li>\n        ";
-},"11":function(container,depth0,helpers,partials,data) {
-    return " class=\"completed\"";
-},"13":function(container,depth0,helpers,partials,data) {
-    var stack1, alias1=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
-    };
-
-  return "    <div class=\"footer\" "
-    + ((stack1 = lookupProperty(helpers,"unless").call(alias1,((stack1 = (depth0 != null ? lookupProperty(depth0,"info") : depth0)) != null ? lookupProperty(stack1,"haveItem") : stack1),{"name":"unless","hash":{},"fn":container.program(6, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":33,"column":24},"end":{"line":33,"column":75}}})) != null ? stack1 : "")
-    + ">\n        <span class=\"todo-count\">\n            <strong>"
-    + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"info") : depth0)) != null ? lookupProperty(stack1,"left") : stack1), depth0))
-    + "</strong>\n            items left\n        </span>\n        <ul class=\"filters\">\n            <li class=\"all\"><a "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,((stack1 = (depth0 != null ? lookupProperty(depth0,"info") : depth0)) != null ? lookupProperty(stack1,"all") : stack1),{"name":"if","hash":{},"fn":container.program(14, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":39,"column":31},"end":{"line":39,"column":71}}})) != null ? stack1 : "")
-    + " href=\"\">All</a></li>\n            <li class=\"active\"><a "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,((stack1 = (depth0 != null ? lookupProperty(depth0,"info") : depth0)) != null ? lookupProperty(stack1,"active") : stack1),{"name":"if","hash":{},"fn":container.program(14, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":40,"column":34},"end":{"line":40,"column":77}}})) != null ? stack1 : "")
-    + " href=\"#/todos/fit/active\">Active</a></li>\n            <li class=\"completed\"><a "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,((stack1 = (depth0 != null ? lookupProperty(depth0,"info") : depth0)) != null ? lookupProperty(stack1,"completed") : stack1),{"name":"if","hash":{},"fn":container.program(14, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":41,"column":37},"end":{"line":41,"column":83}}})) != null ? stack1 : "")
-    + " href=\"#/todos/fit/complete\">Completed</a></li>\n        </ul>\n        <button id=\"remove\" class=\"clear-completed\" "
-    + ((stack1 = lookupProperty(helpers,"unless").call(alias1,((stack1 = (depth0 != null ? lookupProperty(depth0,"info") : depth0)) != null ? lookupProperty(stack1,"haveCompleted") : stack1),{"name":"unless","hash":{},"fn":container.program(6, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":43,"column":52},"end":{"line":43,"column":108}}})) != null ? stack1 : "")
-    + ">Clear completed</button>\n    </div>\n";
-},"14":function(container,depth0,helpers,partials,data) {
-    return " class=\"selected\"";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, options, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
-    }, buffer = "";
-
-  stack1 = ((helper = (helper = lookupProperty(helpers,"module") || (depth0 != null ? lookupProperty(depth0,"module") : depth0)) != null ? helper : alias2),(options={"name":"module","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":1,"column":0},"end":{"line":7,"column":11}}}),(typeof helper === "function" ? helper.call(alias1,options) : helper));
-  if (!lookupProperty(helpers,"module")) { stack1 = container.hooks.blockHelperMissing.call(depth0,stack1,options)}
-  if (stack1 != null) { buffer += stack1; }
-  return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"header",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":8,"column":0},"end":{"line":13,"column":9}}})) != null ? stack1 : "")
-    + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":14,"column":0},"end":{"line":31,"column":9}}})) != null ? stack1 : "")
-    + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"footer",{"name":"view","hash":{},"fn":container.program(13, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":32,"column":0},"end":{"line":45,"column":9}}})) != null ? stack1 : "");
-},"useData":true});
-},{"handlebars/runtime":"handlebars/runtime"}],"./app/todos/view-footer":[function(require,module,exports){
-var _ = require('lodash/collection');
-
-exports.bindings = {
-    todos: true,
-    filter: true
-};
-
-exports.dataForTemplate = {
-    info: function(data) {
-        var info = {
-            left: _.filter(data.todos, 'completed', false).length,
-            haveCompleted: _.some(data.todos, 'completed', true),
-            haveItem: data.todos.length > 0
-        };
-
-        info[data.filter] = true;
-        return info;
-    }
-};
-
-exports.actions = {
-    'click remove': 'clearCompleted'
-};
-
-},{"lodash/collection":"lodash/collection"}],"./app/todos/view-header":[function(require,module,exports){
-exports.bindings = {
-    todos: false
-};
-
-exports.actions = {
-    'keypress new-todo': 'createTodo'
-};
-
-exports.dataForActions = {
-    createTodo: function(data, e) {
-        if (e.keyCode !== 13) {
-            return false;
-        }
-        e.preventDefault();
-
-        if (!data.text) {
-            return false;
-        }
-        data.text=data.text+'哈哈';
-        this.$('new-todo').value = '';
-        return data;
-    }
-};
-
-},{}],"./app/todos/view-main":[function(require,module,exports){
-var _ = require('lodash/collection');//加载用到的工具模块
-exports.bindings = { //绑定此视图用到的model,值为true表示数据改变后会刷新页面
-    todos: true,
-    filter: true
-};
-exports.events = { //绑定视图内的dom事件，与exports.handlers配套使用
-    'dblclick edit-*': 'showEdit', //事件类型  dom元素：事件处理函数
-    'blur input-*': 'cancelEdit'
-};
-exports.handlers = { //与exports.events配套使用
-    showEdit: function(id, e) { //事件处理函数，对应events里的showEdit
-        e.target.parentNode.parentNode.classList.add('editing');
-        this.$('input-' + id).focus();
-    },
-    cancelEdit: function(id, e) {
-        e.target.parentNode.parentNode.classList.remove('editing');
-    }
-};
-exports.dataForTemplate = { //模板载入之前处理一下需要传递给模板的数据
-    todos: function(data) {
-        var filter = data.filter;
-        if (!filter || filter === 'all') {
-            return data.todos;
-        }
-        return _.filter(data.todos, {completed: filter === 'completed'});
-    },
-    completed: function(data) {
-        return _.every(data.todos, 'completed', true);
-    },
-    haveItem: function(data) {
-        return data.todos.length > 0;
-    }
-};
-//绑定页面操作触发与index.js定义的回调函数的关联
-exports.actions = {
-    'change toggle-*': 'completeTodo',
-    'click destroy-*': 'removeTodo',//绑定页面ID=destroy-*的元素,点击时触发index.js的this.store.callbacks.removeTodo方法
-    'change toggleAll': 'toggleAllTodos',
-    'keypress input-*': 'updateTodo'
-};
-//页面触发表单提交时，会将表单的数据放入到payload对象中，dataForAction可以在回调函数之前
-//先处理一下需要传递的数据，或者做一些数据校验
-exports.dataForActions = { 
-    completeTodo: function(data, e) {
-        data.completed = e.target.checked;
-        return data;
-    },
-    toggleAllTodos: function(data, e) {
-        this.allCompleted = data.completed = e.target.checked;
-        return data;
-    },
-    updateTodo: function(data, e) {
-        if (e.keyCode !== 13) {
-            return false;
-        }
-        e.preventDefault();
-        if (!data.text) {
-            return false;
-        }
-        return data;
-    }
-};
-
-},{"lodash/collection":"lodash/collection"}],"./app/video/index":[function(require,module,exports){
+},{}],"./app/show/index":[function(require,module,exports){
 exports.items = {
     main: 'main'
 };
-exports.store = {
-    models: {
-        state: { data: {} }
+exports.mixin={//可以通过mixin扩展module模块的功能
+    fn1:function(){//扩展1
+
     },
-    callbacks: {
-        init: function(option) {
-            var state = this.models.state;
-            state.data = option.url;
-        }
+    fn2:function(){//扩展2
+
     }
 };
 
-exports.beforeRender = function() {
-    return this.dispatch('init', this.renderOptions);
-};
 
-
-
-},{}],"./app/video/templates":[function(require,module,exports){
+},{}],"./app/show/templates":[function(require,module,exports){
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
-    return "   <div class=\"header\" data-region=\"main\">\r\n    \r\n   </div>\r\n";
+    return "<div class=\"list-box\">\r\n    <div data-region=\"main\"></div>\r\n</div>\r\n";
 },"3":function(container,depth0,helpers,partials,data) {
-    return "    <h1 class=\"brand-title\" style=\"text-align:center\">视频模块</h1>\r\n    <video id=\"player\" class=\"fullScreen-content video-js vjs-default-skin vjs-big-play-centered vjs-skin-hotdog-stand ttop\" preload=\"auto\">\r\n        <source src=\"http://vjs.zencdn.net/v/oceans.mp4\" type=\"video/mp4\"/>\r\n    </video>\r\n";
+    return "<div class=\"mbox\">\r\n    <h1 class=\"brand-title\">二维码</h1>\r\n    <div id=\"qr-box\" class=\"qrcode\"></div>\r\n</div>\r\n";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, options, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -1053,6 +907,67 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
   if (stack1 != null) { buffer += stack1; }
   return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":0},"end":{"line":11,"column":9}}})) != null ? stack1 : "");
 },"useData":true});
+},{"handlebars/runtime":"handlebars/runtime"}],"./app/show/view-main":[function(require,module,exports){
+
+exports.components = [{
+	id: 'qr-box',  //templates.hbs里定义的元素
+	name: 'qrcode', //ext目录下的组件名
+	options: { width: 200, height: 200 }   //此组件配置属性
+}
+];
+
+
+},{}],"./app/video/index":[function(require,module,exports){
+exports.items = {
+    main: 'main'
+};
+exports.store = {
+    models: {
+        state: { data: {} },
+        url:{data:''}
+    },
+    callbacks: {
+        init: function(option) {
+            var state = this.models.state;
+            state.data = option.url;
+        }
+    }
+};
+
+exports.beforeRender = function() {
+    console.log(this.renderOptions)
+    return this.dispatch('init', this.renderOptions);
+};
+
+
+
+},{}],"./app/video/templates":[function(require,module,exports){
+var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
+    return "    <div class=\"video\">\r\n        <div data-region=\"main\"></div>\r\n    </div>\r\n\r\n";
+},"3":function(container,depth0,helpers,partials,data) {
+    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "    <h1 class=\"brand-title\" >视频模块</h1>\r\n    <video id=\"player\" class=\"fullScreen-content video-js vjs-default-skin vjs-big-play-centered vjs-skin-hotdog-stand ttop\" preload=\"auto\">\r\n        <source src=\"http://vjs.zencdn.net/v/oceans.mp4\" type=\"video/mp4\"/>\r\n    </video>\r\n    <div>111"
+    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"url") || (depth0 != null ? lookupProperty(depth0,"url") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"url","hash":{},"data":data,"loc":{"start":{"line":12,"column":12},"end":{"line":12,"column":19}}}) : helper)))
+    + "</div>\r\n";
+},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, helper, options, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    }, buffer = "";
+
+  stack1 = ((helper = (helper = lookupProperty(helpers,"module") || (depth0 != null ? lookupProperty(depth0,"module") : depth0)) != null ? helper : alias2),(options={"name":"module","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":1,"column":0},"end":{"line":6,"column":11}}}),(typeof helper === "function" ? helper.call(alias1,options) : helper));
+  if (!lookupProperty(helpers,"module")) { stack1 = container.hooks.blockHelperMissing.call(depth0,stack1,options)}
+  if (stack1 != null) { buffer += stack1; }
+  return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":7,"column":0},"end":{"line":13,"column":9}}})) != null ? stack1 : "");
+},"useData":true});
 },{"handlebars/runtime":"handlebars/runtime"}],"./app/video/view-main":[function(require,module,exports){
 exports.components = [function() {
 	var me = this;
@@ -1062,7 +977,6 @@ exports.components = [function() {
         options: {
             video: {
                 autoplay: true,
-                
             },
         }
     };
@@ -1085,6 +999,9 @@ exports.beforeClose = function(){
 };
 exports.afterClose = function(){
 };
+exports.beforeRender=function(){
+    console.log(this,this.app)
+}
 
 },{}],"./app/viewport/index":[function(require,module,exports){
 exports.items = {
@@ -1108,8 +1025,8 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
   return buffer;
 },"useData":true});
 },{"handlebars/runtime":"handlebars/runtime"}],1:[function(require,module,exports){
-arguments[4]["./app/menu/view-main"][0].apply(exports,arguments)
-},{"dup":"./app/menu/view-main"}],2:[function(require,module,exports){
+arguments[4]["./app/dynamic/view-header"][0].apply(exports,arguments)
+},{"dup":"./app/dynamic/view-header"}],2:[function(require,module,exports){
 /*!
  * DrizzleJS v0.4.19
  * -------------------------------------
@@ -30646,19 +30563,21 @@ var D = require('drizzlejs'),
     H = require('handlebars/runtime'),
     getFormData = require('get-form-data'), app;
 
-H.registerHelper('module', function(options) { //注册handlebars的helper
+H.registerHelper('module', function (options) { //注册handlebars的helper
     return (this.Self instanceof D.Module) ? options.fn(this) : '';
 });
 
-H.registerHelper('view', function(name, options) { ////注册handlebars的helper
+H.registerHelper('view', function (name, options) { ////注册handlebars的helper
     return (this.Self instanceof D.View) && this.Self.name === name ? options.fn(this) : '';
 });
 require('./app/ext/qr-code');
 require('./app/ext/view/dynamic-view');
 require('./app/ext/videojs');
+require('./app/ext/pop.js');
+require('./app/ext/pager.js');
 //扩展drizzlejs框架Adapter对象的功能
 D.adapt({
-    getFormData: function(el) {
+    getFormData: function (el) {
         return getFormData(el);
     }
 });
@@ -30667,11 +30586,11 @@ window.app = app = new D.Application({
     container: document.getElementById('content'),//应用的根容器
     urlRoot: 'api', //详情见model url的说明
     routerPrefix: '#/',
-    routers: ['', 'todos'] //其它模块定义的router.js文件，['todos']表示会加载todos模块目录下的router.js文件
+    routers: [''] //其它模块定义的router.js文件
 });
 
-app.start('todos');//通过路由todos默认加载显示todos模块
+app.start('proto');//通过路由todos默认加载显示todos模块
 
-},{"./app/ext/qr-code":"./app/ext/qr-code","./app/ext/videojs":"./app/ext/videojs","./app/ext/view/dynamic-view":"./app/ext/view/dynamic-view","drizzlejs":2,"get-form-data":3,"handlebars/runtime":"handlebars/runtime"}]},{},[111]);
+},{"./app/ext/pager.js":"./app/ext/pager","./app/ext/pop.js":"./app/ext/pop","./app/ext/qr-code":"./app/ext/qr-code","./app/ext/videojs":"./app/ext/videojs","./app/ext/view/dynamic-view":"./app/ext/view/dynamic-view","drizzlejs":2,"get-form-data":3,"handlebars/runtime":"handlebars/runtime"}]},{},[111]);
 
 //# sourceMappingURL=main.js.map

@@ -88,7 +88,7 @@ gulp.task('default', ['main', 'common'], function() {
     var app = express(), server = jsonServer.create();
 
     server.use(jsonServer.defaults());
-    server.use(jsonServer.router('data/todos.json'));
+    server.use(jsonServer.router('data/proto.json'));
     app.use(function(req, res, next) {
         console.log('Request URL:', req.originalUrl);
         next();

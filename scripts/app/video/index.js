@@ -3,7 +3,8 @@ exports.items = {
 };
 exports.store = {
     models: {
-        state: { data: {} }
+        state: { data: {} },
+        url:{data:''}
     },
     callbacks: {
         init: function(option) {
@@ -14,6 +15,7 @@ exports.store = {
 };
 
 exports.beforeRender = function() {
+    console.log(this.renderOptions)
     return this.dispatch('init', this.renderOptions);
 };
 
