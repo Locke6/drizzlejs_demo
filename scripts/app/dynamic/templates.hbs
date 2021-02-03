@@ -9,6 +9,12 @@
 {{/view}}
 {{#view "main"}}
     <div>
-        <div data-dynamic-key="haha"></div>
+        <button id="video-tab">video</button>
+        <button id="show-tab">qr-code</button>
+        {{#if flag}}
+            <div data-dynamic-key="video"></div>
+        {{else}}
+            <div data-dynamic-key="show"></div>
+        {{/if}}
     </div>
 {{/view}}

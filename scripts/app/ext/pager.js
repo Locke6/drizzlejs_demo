@@ -203,15 +203,13 @@ Pager.prototype = {
 /* 组件注册 */
 D.ComponentManager.register('pager', function (view, el, options = {}) {
     var users = view.bindings[options.model];
-    // console.log(view.options.dataForTemplate[options.length])
-    // var total=view.bindings.totalList.data.length
-    // console.log(view.bindings.totalList,total)
-    // console.log(view.bindings[options.total].data.length)
     var dataTotal = view.bindings[options.total].data.length
     var pageTotal = dataTotal ? Math.ceil(dataTotal / 6) : 3
+    // console.log(1)
+    var curPage=view.bindings[options.page].data.page
     var h = new Pager({
         id: el,
-        curPage: 1, //初始页码
+        curPage: curPage||1, //初始页码
         pageTotal: pageTotal, //总页数
         pageAmount: 6, //每页多少条
         dataTotal: dataTotal || 24, //总共多少条数据

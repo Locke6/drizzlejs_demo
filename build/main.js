@@ -3,6 +3,22 @@ exports.items = {
     header: 'header',
     main: 'main'
 };
+exports.store = {
+    models: {
+        tab: { data: '1' }
+    },
+    callbacks:{
+        tab:function(payload){
+            var {tab}=this.models,
+                name=tab.data
+            if(+name){
+                tab.set('0',true)
+            }else{
+                tab.set('1',true)
+            }
+        }
+    }
+}
 
 
 
@@ -12,7 +28,20 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
 },"3":function(container,depth0,helpers,partials,data) {
     return "    <h1 class=\"header-dynamic\">声明式渲染视频模块</h1>\n";
 },"5":function(container,depth0,helpers,partials,data) {
-    return "    <div>\n        <div data-dynamic-key=\"haha\"></div>\n    </div>\n";
+    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "    <div>\n        <button id=\"video-tab\">video</button>\n        <button id=\"show-tab\">qr-code</button>\n"
+    + ((stack1 = lookupProperty(helpers,"if").call(depth0 != null ? depth0 : (container.nullContext || {}),(depth0 != null ? lookupProperty(depth0,"flag") : depth0),{"name":"if","hash":{},"fn":container.program(6, data, 0),"inverse":container.program(8, data, 0),"data":data,"loc":{"start":{"line":14,"column":8},"end":{"line":18,"column":15}}})) != null ? stack1 : "")
+    + "    </div>\n";
+},"6":function(container,depth0,helpers,partials,data) {
+    return "            <div data-dynamic-key=\"video\"></div>\n";
+},"8":function(container,depth0,helpers,partials,data) {
+    return "            <div data-dynamic-key=\"show\"></div>\n";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, options, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -25,7 +54,7 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
   if (!lookupProperty(helpers,"module")) { stack1 = container.hooks.blockHelperMissing.call(depth0,stack1,options)}
   if (stack1 != null) { buffer += stack1; }
   return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"header",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":7,"column":0},"end":{"line":9,"column":9}}})) != null ? stack1 : "")
-    + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":10,"column":0},"end":{"line":14,"column":9}}})) != null ? stack1 : "");
+    + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":10,"column":0},"end":{"line":20,"column":9}}})) != null ? stack1 : "");
 },"useData":true});
 },{"handlebars/runtime":"handlebars/runtime"}],"./app/dynamic/view-header":[function(require,module,exports){
 
@@ -36,18 +65,37 @@ exports.dataForEntityModule = function (data) {
     // console.log(data)
     return data;
 };
-
+exports.bindings = {
+    tab: true
+}
+exports.dataForTemplate = {
+    flag: function (data) {
+        return data.tab == 1
+    }
+}
 exports.getEntity = function (id) {
     return {
-        type: 'video',
-        url: 'xx.mp4'
+        type: 'video/mp4',
+        url: 'http://vjs.zencdn.net/v/oceans.mp4'
     };
 };
-
+exports.actions = {
+    'click  video-tab': 'tab',
+    'click  show-tab': 'tab'
+}
+// exports.dataForActions = {
+//     tab: function (data, e) {
+//         data.name = e.target.dataset.name
+//         return data
+//     }
+// }
 exports.getEntityModuleName = function (key) {
     // key值为模版里标签的自定义属性data-dynamic-key
-    // console.log(key)
-    return 'video';//要动态渲染的模块
+    if (key === "video") {
+        return 'video';//要动态渲染的模块
+    } else {
+        return 'show'
+    }
 }
 
 },{}],"./app/ext/pager":[function(require,module,exports){
@@ -256,15 +304,13 @@ Pager.prototype = {
 /* 组件注册 */
 D.ComponentManager.register('pager', function (view, el, options = {}) {
     var users = view.bindings[options.model];
-    // console.log(view.options.dataForTemplate[options.length])
-    // var total=view.bindings.totalList.data.length
-    // console.log(view.bindings.totalList,total)
-    // console.log(view.bindings[options.total].data.length)
     var dataTotal = view.bindings[options.total].data.length
     var pageTotal = dataTotal ? Math.ceil(dataTotal / 6) : 3
+    // console.log(1)
+    var curPage=view.bindings[options.page].data.page
     var h = new Pager({
         id: el,
-        curPage: 1, //初始页码
+        curPage: curPage||1, //初始页码
         pageTotal: pageTotal, //总页数
         pageAmount: 6, //每页多少条
         dataTotal: dataTotal || 24, //总共多少条数据
@@ -330,21 +376,24 @@ function Pop(options = {}, view) {
   userBox.appendChild(titleArea)
   userBox.appendChild(contentArea)
   submit.addEventListener('click', function () {
-    var user = view.bindings.protoList,
-        name = document.getElementById('user-name'),
-        age = document.getElementById('user-age'),
-        sex = document.getElementById('user-sex')
+    var { protoList, totalList, user } = view.bindings
+    var name = document.getElementById('user-name'),
+      age = document.getElementById('user-age'),
+      sex = document.getElementById('user-sex')
+    var page=protoList.options.url.split('?')[1].split('&')[0].split('=')[1]
+    user.data.page = page
     opt.id = Date.now()
     opt.name = name.value
     opt.age = age.value
     opt.sex = sex.value
     var params = opt
-    user.set(params, false)
-    D.Request.post(user).then(function () {
-      D.Request.get(user)
-    }).then(function () {
+    protoList.set(params, false)
+    D.Request.post(protoList).then(function () {
+      D.Request.get(protoList)
+      D.Request.get(totalList)
+    })/* .then(function () {
       location.reload()
-    })
+    }) */
     userBox.className = "userbox hide-box"
     options.show = 0
   })
@@ -424,21 +473,21 @@ D.ComponentManager.register('videojs', function(view, el, options) {
     return videojs(el, D.assign(opt, options.video), function() {
        this.on('error', function(e) { alert(e);  });
 
-        if (view.options.video) {
-            this.on('loadeddata',function(){
-            	console.log('loadeddata');
-            });
-            this.on('loadstart',function(){
-            	console.log('loadstart');
-            });
-            this.on('loadedmetadata',function(){
-            	console.log('loadedmetadata');
-            	//this.currentTime(32);
-            });
-            this.on('durationchange',function(){
-            	console.log('durationchange');
-            });
-        }
+        // if (view.options.video) {
+        //     this.on('loadeddata',function(){
+        //     	console.log('loadeddata');
+        //     });
+        //     this.on('loadstart',function(){
+        //     	console.log('loadstart');
+        //     });
+        //     this.on('loadedmetadata',function(){
+        //     	console.log('loadedmetadata');
+        //     	this.currentTime(32);
+        //     });
+        //     this.on('durationchange',function(){
+        //     	console.log('durationchange');
+        //     });
+        // }
         if (options.callbacks) options.callbacks.call(view, this);
     });
 }, function(view, comp) {
@@ -563,13 +612,16 @@ exports.store = {
     },
     // 删除单项
     removeUser: function (payload) {
-      var { protoList } = this.models;
+      var { protoList, totalList,user } = this.models;
       var oriUrl = protoList.options.url
+      var page=oriUrl.split('?')[1].split('&')[0].split('=')[1]
+      user.data.page = page
       protoList.options.url = `../testList/${payload.id}`
       var that = this
       this.del(protoList).then(function () {
         protoList.options.url = oriUrl
         that.get(protoList)
+        that.get(totalList)
       })
     },
     //切换修改
@@ -579,7 +631,7 @@ exports.store = {
       protoList.changed()
       if (payload.flag) {
         _.find(protoList.data, { id: +payload.id }).name = payload.name;
-        var params = protoList.data.find(function(_){return _.id==payload.id})
+        var params = protoList.data.find(function (_) { return _.id == payload.id })
         var oriUrl = protoList.options.url
         protoList.set(params, false)
         protoList.options.url = `../testList/`
@@ -636,7 +688,7 @@ exports.store = {
 exports.beforeRender = function () {
   this.dispatch('getProtoList')
 };
-exports.afterClose=function(){
+exports.afterClose = function () {
   // var { protoList } = this.models
   console.log(this.models)
 }
@@ -739,13 +791,14 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
 var _ = require('lodash/collection');
 exports.bindings = {
     protoList: false,
-    totalList: true
+    totalList: true,
+    user: false
 };
 exports.components = [{
     id: 'pagerbox',
     name: 'pager',
     options: {
-        model: 'protoList', total: 'totalList'
+        model: 'protoList', total: 'totalList', page: 'user'
     }
 }];
 },{"lodash/collection":"lodash/collection"}],"./app/proto/view-main":[function(require,module,exports){
@@ -852,10 +905,14 @@ exports.components = [{
 },{"lodash/collection":"lodash/collection"}],"./app/router":[function(require,module,exports){
 module.exports = {
     routes: {
+        proto: 'showProto',
         show: 'showShow',//showShow对应下面定义的showTodos函数
         dynamic: 'showDynamic',
-        proto: 'showProto',
         video: 'showVideo',
+    },
+    showProto: function() {
+    	//在名为content的Region中展示proto模块
+        return this.app.show('content', 'proto', { forceRender: false });
     },
     showShow: function() {
          //在名为content的Region中展示show模块
@@ -864,10 +921,6 @@ module.exports = {
     showDynamic: function() {
     	//在名为content的Region中展示dynamic模块
         return this.app.show('content', 'dynamic', { forceRender: true });
-    },
-    showProto: function() {
-    	//在名为content的Region中展示proto模块
-        return this.app.show('content', 'proto', { forceRender: false });
     },
     showVideo: function() {
     	//在名为content的Region中展示proto模块
@@ -923,19 +976,18 @@ exports.items = {
 };
 exports.store = {
     models: {
-        state: { data: {} },
-        url:{data:''}
+        state: { data: {} }
     },
     callbacks: {
-        init: function(option) {
+        init: function (option) {
             var state = this.models.state;
-            state.data = option.url;
+            state.data = option;
         }
     }
 };
 
-exports.beforeRender = function() {
-    console.log(this.renderOptions)
+exports.beforeRender = function () {
+    // console.log(this.renderOptions)
     return this.dispatch('init', this.renderOptions);
 };
 
@@ -945,16 +997,18 @@ exports.beforeRender = function() {
 var templater = require("handlebars/runtime")["default"].template;module.exports = templater({"1":function(container,depth0,helpers,partials,data) {
     return "    <div class=\"video\">\r\n        <div data-region=\"main\"></div>\r\n    </div>\r\n\r\n";
 },"3":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+    var stack1, helper, alias1=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
         }
         return undefined
     };
 
-  return "    <h1 class=\"brand-title\" >视频模块</h1>\r\n    <video id=\"player\" class=\"fullScreen-content video-js vjs-default-skin vjs-big-play-centered vjs-skin-hotdog-stand ttop\" preload=\"auto\">\r\n        <source src=\"http://vjs.zencdn.net/v/oceans.mp4\" type=\"video/mp4\"/>\r\n    </video>\r\n    <div>111"
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"url") || (depth0 != null ? lookupProperty(depth0,"url") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"url","hash":{},"data":data,"loc":{"start":{"line":12,"column":12},"end":{"line":12,"column":19}}}) : helper)))
-    + "</div>\r\n";
+  return "    <h1 class=\"brand-title\" >视频模块</h1>\r\n    <video id=\"player\" class=\"fullScreen-content video-js vjs-default-skin vjs-big-play-centered vjs-skin-hotdog-stand ttop\" preload=\"auto\">\r\n        <source src="
+    + alias1(((helper = (helper = lookupProperty(helpers,"url") || (depth0 != null ? lookupProperty(depth0,"url") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"url","hash":{},"data":data,"loc":{"start":{"line":10,"column":20},"end":{"line":10,"column":27}}}) : helper)))
+    + " type="
+    + alias1(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"state") : depth0)) != null ? lookupProperty(stack1,"type") : stack1), depth0))
+    + ">\r\n    </video>\r\n";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, options, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -966,11 +1020,11 @@ var templater = require("handlebars/runtime")["default"].template;module.exports
   stack1 = ((helper = (helper = lookupProperty(helpers,"module") || (depth0 != null ? lookupProperty(depth0,"module") : depth0)) != null ? helper : alias2),(options={"name":"module","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":1,"column":0},"end":{"line":6,"column":11}}}),(typeof helper === "function" ? helper.call(alias1,options) : helper));
   if (!lookupProperty(helpers,"module")) { stack1 = container.hooks.blockHelperMissing.call(depth0,stack1,options)}
   if (stack1 != null) { buffer += stack1; }
-  return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":7,"column":0},"end":{"line":13,"column":9}}})) != null ? stack1 : "");
+  return buffer + ((stack1 = (lookupProperty(helpers,"view")||(depth0 && lookupProperty(depth0,"view"))||alias2).call(alias1,"main",{"name":"view","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":7,"column":0},"end":{"line":12,"column":9}}})) != null ? stack1 : "");
 },"useData":true});
 },{"handlebars/runtime":"handlebars/runtime"}],"./app/video/view-main":[function(require,module,exports){
-exports.components = [function() {
-	var me = this;
+exports.components = [function () {
+    var me = this;
     return {
         id: 'player',
         name: 'videojs',
@@ -981,27 +1035,35 @@ exports.components = [function() {
         }
     };
 }];
-exports.video = {
-    ended: function() {
-        
-    },
-    seeked: function(player) {
-        player.play();
-    },
-    loadeddata: function(player) {
+exports.bindings = {
+    state: true
+};
+exports.dataForTemplate = {
+    url: function (data) {
+        return data.state.url || 'http://vjs.zencdn.net/v/oceans.mp4'
     }
 };
-exports.beforeClose = function(){
-	var player = this.components.player;
-	var resourceTotalTime = Math.floor(player.duration());
+exports.video = {
+    ended: function () {
+
+    },
+    seeked: function (player) {
+        player.play();
+    },
+    loadeddata: function (player) {
+    }
+};
+exports.beforeClose = function () {
+    var player = this.components.player;
+    var resourceTotalTime = Math.floor(player.duration());
     var lessonLocationTime = Math.floor(player.cache_.currentTime);
-    console.log(resourceTotalTime+"cTime:"+lessonLocationTime);
+    console.log(resourceTotalTime + "cTime:" + lessonLocationTime);
 };
-exports.afterClose = function(){
+exports.afterClose = function () {
 };
-exports.beforeRender=function(){
-    console.log(this,this.app)
-}
+// exports.beforeRender = function () {
+//     console.log(this, this.app)
+// }
 
 },{}],"./app/viewport/index":[function(require,module,exports){
 exports.items = {

@@ -1,5 +1,5 @@
-exports.components = [function() {
-	var me = this;
+exports.components = [function () {
+    var me = this;
     return {
         id: 'player',
         name: 'videojs',
@@ -10,24 +10,32 @@ exports.components = [function() {
         }
     };
 }];
-exports.video = {
-    ended: function() {
-        
-    },
-    seeked: function(player) {
-        player.play();
-    },
-    loadeddata: function(player) {
+exports.bindings = {
+    state: true
+};
+exports.dataForTemplate = {
+    url: function (data) {
+        return data.state.url || 'http://vjs.zencdn.net/v/oceans.mp4'
     }
 };
-exports.beforeClose = function(){
-	var player = this.components.player;
-	var resourceTotalTime = Math.floor(player.duration());
+exports.video = {
+    ended: function () {
+
+    },
+    seeked: function (player) {
+        player.play();
+    },
+    loadeddata: function (player) {
+    }
+};
+exports.beforeClose = function () {
+    var player = this.components.player;
+    var resourceTotalTime = Math.floor(player.duration());
     var lessonLocationTime = Math.floor(player.cache_.currentTime);
-    console.log(resourceTotalTime+"cTime:"+lessonLocationTime);
+    console.log(resourceTotalTime + "cTime:" + lessonLocationTime);
 };
-exports.afterClose = function(){
+exports.afterClose = function () {
 };
-exports.beforeRender=function(){
-    console.log(this,this.app)
-}
+// exports.beforeRender = function () {
+//     console.log(this, this.app)
+// }

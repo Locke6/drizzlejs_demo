@@ -3,19 +3,18 @@ exports.items = {
 };
 exports.store = {
     models: {
-        state: { data: {} },
-        url:{data:''}
+        state: { data: {} }
     },
     callbacks: {
-        init: function(option) {
+        init: function (option) {
             var state = this.models.state;
-            state.data = option.url;
+            state.data = option;
         }
     }
 };
 
-exports.beforeRender = function() {
-    console.log(this.renderOptions)
+exports.beforeRender = function () {
+    // console.log(this.renderOptions)
     return this.dispatch('init', this.renderOptions);
 };
 

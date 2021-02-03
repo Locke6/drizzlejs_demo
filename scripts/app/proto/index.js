@@ -25,13 +25,16 @@ exports.store = {
     },
     // 删除单项
     removeUser: function (payload) {
-      var { protoList } = this.models;
+      var { protoList, totalList,user } = this.models;
       var oriUrl = protoList.options.url
+      var page=oriUrl.split('?')[1].split('&')[0].split('=')[1]
+      user.data.page = page
       protoList.options.url = `../testList/${payload.id}`
       var that = this
       this.del(protoList).then(function () {
         protoList.options.url = oriUrl
         that.get(protoList)
+        that.get(totalList)
       })
     },
     //切换修改
@@ -41,7 +44,7 @@ exports.store = {
       protoList.changed()
       if (payload.flag) {
         _.find(protoList.data, { id: +payload.id }).name = payload.name;
-        var params = protoList.data.find(function(_){return _.id==payload.id})
+        var params = protoList.data.find(function (_) { return _.id == payload.id })
         var oriUrl = protoList.options.url
         protoList.set(params, false)
         protoList.options.url = `../testList/`
@@ -98,7 +101,7 @@ exports.store = {
 exports.beforeRender = function () {
   this.dispatch('getProtoList')
 };
-exports.afterClose=function(){
+exports.afterClose = function () {
   // var { protoList } = this.models
   console.log(this.models)
 }

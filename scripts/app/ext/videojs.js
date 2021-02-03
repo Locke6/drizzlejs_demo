@@ -36,21 +36,21 @@ D.ComponentManager.register('videojs', function(view, el, options) {
     return videojs(el, D.assign(opt, options.video), function() {
        this.on('error', function(e) { alert(e);  });
 
-        if (view.options.video) {
-            this.on('loadeddata',function(){
-            	console.log('loadeddata');
-            });
-            this.on('loadstart',function(){
-            	console.log('loadstart');
-            });
-            this.on('loadedmetadata',function(){
-            	console.log('loadedmetadata');
-            	//this.currentTime(32);
-            });
-            this.on('durationchange',function(){
-            	console.log('durationchange');
-            });
-        }
+        // if (view.options.video) {
+        //     this.on('loadeddata',function(){
+        //     	console.log('loadeddata');
+        //     });
+        //     this.on('loadstart',function(){
+        //     	console.log('loadstart');
+        //     });
+        //     this.on('loadedmetadata',function(){
+        //     	console.log('loadedmetadata');
+        //     	this.currentTime(32);
+        //     });
+        //     this.on('durationchange',function(){
+        //     	console.log('durationchange');
+        //     });
+        // }
         if (options.callbacks) options.callbacks.call(view, this);
     });
 }, function(view, comp) {

@@ -8,4 +8,9 @@ view('header')
     h1.header-dynamic 声明式渲染视频模块
 view('main')
     div
-        div(data-dynamic-key='haha')
+        button#video-tab video
+        button#show-tab qr-code
+        if(flag)
+            div(data-dynamic-key='video')
+        else
+            div(data-dynamic-key='show')

@@ -44,21 +44,24 @@ function Pop(options = {}, view) {
   userBox.appendChild(titleArea)
   userBox.appendChild(contentArea)
   submit.addEventListener('click', function () {
-    var user = view.bindings.protoList,
-        name = document.getElementById('user-name'),
-        age = document.getElementById('user-age'),
-        sex = document.getElementById('user-sex')
+    var { protoList, totalList, user } = view.bindings
+    var name = document.getElementById('user-name'),
+      age = document.getElementById('user-age'),
+      sex = document.getElementById('user-sex')
+    var page=protoList.options.url.split('?')[1].split('&')[0].split('=')[1]
+    user.data.page = page
     opt.id = Date.now()
     opt.name = name.value
     opt.age = age.value
     opt.sex = sex.value
     var params = opt
-    user.set(params, false)
-    D.Request.post(user).then(function () {
-      D.Request.get(user)
-    }).then(function () {
+    protoList.set(params, false)
+    D.Request.post(protoList).then(function () {
+      D.Request.get(protoList)
+      D.Request.get(totalList)
+    })/* .then(function () {
       location.reload()
-    })
+    }) */
     userBox.className = "userbox hide-box"
     options.show = 0
   })
